@@ -7,14 +7,14 @@
    environment."
   (cadr (assoc var env)))
 
-(defun cl-eval (exp &optional (env *env*) (fenv *fenv*))
+(defun cl-eval (exp env fenv)
   "Evaluates EXP in ENV."
   (cond ((symbolp exp) (get-val exp env))
 	((atom exp) exp)
         ((case (first exp)
 	   (quote (cadr exp))
            (function (cl-function (cadr exp) env fenv))
-	   (if (cl-eval-if (cdr exp) env))
+	   (if (cl-eval-if (cdr exp) env fenv))
 	   (progn (car (last (mapcar (lambda (x) (cl-eval x env fenv))
 				     (cdr exp)))))
 	   (lambda (make-instance 'lambda-fn
@@ -26,14 +26,14 @@
                 (mapcar (lambda (x) (cl-eval x env fenv))
                         (cdr exp))))))))
 
-(defun cl-eval-if (code env)
+(defun cl-eval-if (code env fenv)
   "Evaluates the code for an if expression in ENV. The argument CODE
    should be the list containing the code for the predicate, the code
    for the consequence, and optionally the code for the alternative."
-  (if (cl-eval (car code) env)
-      (cl-eval (cadr code) env)
+  (if (cl-eval (car code) env fenv)
+      (cl-eval (cadr code) env fenv)
       (and (caddr code)
-	   (cl-eval (caddr code) env))))
+	   (cl-eval (caddr code) env fenv))))
 
 (defun lambdap (x)
   "Is this the code for a lambda expression?"
