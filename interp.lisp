@@ -13,7 +13,7 @@
 	((atom exp) exp)
         ((case (first exp)
 	   (quote (cadr exp))
-           (function (get-val (cadr exp) fenv))
+           (function (cl-function (cadr exp) env fenv))
 	   (if (cl-eval-if (cdr exp) env))
 	   (progn (car (last (mapcar (lambda (x) (cl-eval x env fenv))
 				     (cdr exp)))))
@@ -22,9 +22,7 @@
 		    :code (add-progn (cddr exp))
 		    :env  env
                     :fenv fenv))
-	   (t (cl-apply (if (lambdap (car exp))
-                            (cl-eval (car exp) env fenv)
-                            (get-val (car exp) fenv))
+	   (t (cl-apply (cl-function (car exp) env fenv)
                 (mapcar (lambda (x) (cl-eval x env fenv))
                         (cdr exp))))))))
 
@@ -40,6 +38,12 @@
 (defun lambdap (x)
   "Is this the code for a lambda expression?"
   (and (listp x) (eql (car x) 'lambda)))
+
+(defun cl-function (exp env fenv)
+  "Returns the function that EXP names."
+  (if (lambdap exp)
+      (cl-eval exp env fenv)
+      (get-val exp fenv)))
 
 (defclass lambda-fn ()
   ((args :initarg :args :accessor fn-args)
