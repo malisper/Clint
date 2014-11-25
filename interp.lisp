@@ -24,7 +24,9 @@
                     :fenv fenv))
 	   (t (cl-apply (cl-function (car exp) env fenv)
                 (mapcar (lambda (x) (cl-eval x env fenv))
-                        (cdr exp))))))))
+                        (cdr exp))
+                env
+                fenv))))))
 
 (defun cl-eval-if (code env fenv)
   "Evaluates the code for an if expression in ENV. The argument CODE
@@ -45,31 +47,30 @@
       (cl-eval exp env fenv)
       (get-val exp fenv)))
 
-(defclass lambda-fn ()
+(defclass fn () ())
+
+(defclass lambda-fn (fn)
   ((args :initarg :args :accessor fn-args)
    (code :initarg :code :accessor fn-code)
    (env  :initarg :env  :accessor fn-env)
    (fenv :initarg :fenv :accessor fn-fenv)))
 
-(defclass prim-fn ()
+(defclass prim-fn (fn)
   ((fn :initarg :prim-code :accessor prim-code)))
 
 (defun add-progn (exps)
   "Adds a progn to a list of expressions."
   (cons 'progn exps))
 
-(defgeneric cl-apply (f args)
-  (:documentation "Applies a fn to a list of arguments."))
-
-(defmethod cl-apply ((f lambda-fn) args)
-  "Applies a lambda-fn to the arguments."
-  (cl-eval (fn-code f)
-	   (extend-env (fn-env f) (fn-args f) args)
-           (fn-fenv f)))
-
-(defmethod cl-apply ((f prim-fn) args)
-  "Applies a primitive fn to the arguments."
-  (apply (prim-code f) args))
+(defun cl-apply (f args &optional (env *env*) (fenv *fenv*))
+  "Apply a function or symbol to the arguments in the variable
+   environment ENV and function environment FENV."
+  (etypecase f
+    (prim-fn   (apply (prim-code f) args))
+    (lambda-fn (cl-eval (fn-code f)
+                        (extend-env env (fn-args f) args)
+                        fenv))
+    (symbol    (cl-apply (get-val f fenv) args env fenv))))
 
 (defun extend-env (env fn-args args)
   "Extend a given environment. This works for both variable
@@ -101,3 +102,6 @@
 
 (defprimitive apply (f &rest args)
   (cl-apply f (apply #'list* args)))
+
+(defprimitive eval (exp)
+  (cl-eval exp *env* *fenv*))
