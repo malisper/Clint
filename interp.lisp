@@ -48,7 +48,7 @@
    (fenv :initarg :fenv :accessor fn-fenv)))
 
 (defclass prim-fn ()
-  ((fn :initarg :primop :accessor primop)))
+  ((fn :initarg :prim-code :accessor prim-code)))
 
 (defun add-progn (exps)
   "Adds a progn to a list of expressions."
@@ -65,7 +65,7 @@
 
 (defmethod cl-apply ((f prim-fn) args)
   "Applies a primitive fn to the arguments."
-  (apply (primop f) args))
+  (apply (prim-code f) args))
 
 (defun extend-env (env fn-args args)
   "Extend a given environment. This works for both variable
@@ -75,7 +75,7 @@
 (defmacro defprimitive (name args &body body)
   "Define a primitive to be put in the interpreter."
   `(push (list ',name (make-instance 'prim-fn
-                      :primop (lambda ,args ,@body)))
+                      :prim-code (lambda ,args ,@body)))
          *fenv*))
 
 (defprimitive + (&rest args)
@@ -93,5 +93,5 @@
 (defprimitive funcall (f &rest args)
   (cl-apply f args))
 
-(defprimitive apply (&rest args)
-  (apply #'cl-apply args))
+(defprimitive apply (f &rest args)
+  (cl-apply f (apply #'list* args)))
