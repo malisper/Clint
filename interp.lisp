@@ -1,5 +1,5 @@
-(defparameter *env* '())
-(defparameter *fenv* '())
+(defparameter *env* '() "The global variable environment.")
+(defparameter *fenv* '() "The global function environment.")
 
 (defun get-val (var env)
   "Looks up the value of the variable VAR in the enviornment ENV.
