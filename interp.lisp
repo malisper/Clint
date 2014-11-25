@@ -1,5 +1,5 @@
-(defparameter *env* '() "The global variable environment.")
-(defparameter *fenv* '() "The global function environment.")
+(defvar *env* '() "The global variable environment.")
+(defvar *fenv* '() "The global function environment.")
 
 (defun get-val (var env)
   "Looks up the value of the variable VAR in the enviornment ENV.
@@ -78,9 +78,11 @@
 
 (defmacro defprimitive (name args &body body)
   "Define a primitive to be put in the interpreter."
-  `(push (list ',name (make-instance 'prim-fn
-                      :prim-code (lambda ,args ,@body)))
-         *fenv*))
+  `(let ((pair (assoc ',name *fenv*))
+         (fn (make-instance 'prim-fn :prim-code (lambda ,args ,@body))))
+     (if pair
+         (setf (cadr pair) fn)
+         (push (list ',name fn) *fenv*))))
 
 (defprimitive + (&rest args)
   (apply #'+ args))
