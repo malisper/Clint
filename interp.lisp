@@ -15,12 +15,12 @@
 	   (quote (cadr exp))
            (function (cl-function (cadr exp) env fenv))
 	   (if (cl-eval-if (cdr exp) env fenv))
-	   (progn (car (last (eval-all (cdr exp) env fenv))))
+	   (progn (car (last (cl-eval-all (cdr exp) env fenv))))
 	   (t (let ((x (cl-function (car exp) env fenv)))
 		(if (typep x 'macro)
 		    (cl-eval (cl-apply (macro-fn x) (cdr exp)) env fenv)
 		    (cl-apply (cl-function (car exp) env fenv)
-			      (eval-all (cdr exp) env fenv)
+			      (cl-eval-all (cdr exp) env fenv)
 			      env
 			      fenv))))))))
 
@@ -37,7 +37,7 @@
 	(cadr pair)
 	(error "Unbound variable or procedure ~A." var))))
 
-(defun eval-all (exps env fenv)
+(defun cl-eval-all (exps env fenv)
   "Evaluates all of EXPS in the variable environment and function
    environment given. Returns a list of the results."
   (mapcar (lambda (x) (cl-eval x env fenv)) exps))
