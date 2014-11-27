@@ -15,18 +15,16 @@
 	   (quote (cadr exp))
            (function (cl-function (cadr exp) env fenv))
 	   (if (cl-eval-if (cdr exp) env fenv))
-	   (progn (car (last (mapcar (lambda (x) (cl-eval x env fenv))
-				     (cdr exp)))))
-	   (lambda (make-instance 'lambda-fn
-		    :args (cadr exp)
-		    :code (add-progn (cddr exp))
-		    :env  env
-                    :fenv fenv))
+	   (progn (car (last (eval-all (cdr exp) env fenv))))
 	   (t (cl-apply (cl-function (car exp) env fenv)
-                (mapcar (lambda (x) (cl-eval x env fenv))
-                        (cdr exp))
+			(eval-all (cdr exp) env fenv)
                 env
                 fenv))))))
+
+(defun eval-all (exps env fenv)
+  "Evaluates all of EXPS in the variable environment and function
+   environment given. Returns a list of the results."
+  (mapcar (lambda (x) (cl-eval x env fenv)) exps))
 
 (defun cl-eval-if (code env fenv)
   "Evaluates the code for an if expression in ENV. The argument CODE
@@ -44,7 +42,11 @@
 (defun cl-function (exp env fenv)
   "Returns the function that EXP names."
   (if (lambdap exp)
-      (cl-eval exp env fenv)
+      (make-instance 'lambda-fn
+	:args (cadr exp)
+	:code (add-progn (cddr exp))
+	:env  env
+	:fenv fenv)
       (get-val exp fenv)))
 
 (defclass fn () ())
@@ -77,7 +79,7 @@
    environments and function environments."
   (append (mapcar #'list fn-args args) env))
 
-(defmacro defprimitive (name args &body body)
+(defmacro defprimitive-fn (name args &body body)
   "Define a primitive to be put in the interpreter."
   `(let ((pair (assoc ',name *fenv*))
          (fn (make-instance 'prim-fn :prim-code (lambda ,args ,@body))))
@@ -85,23 +87,23 @@
          (setf (cadr pair) fn)
          (push (list ',name fn) *fenv*))))
 
-(defprimitive + (&rest args)
+(defprimitive-fn + (&rest args)
   (apply #'+ args))
 
-(defprimitive - (&rest args)
+(defprimitive-fn - (&rest args)
   (apply #'- args))
 
-(defprimitive * (&rest args)
+(defprimitive-fn * (&rest args)
   (apply #'* args))
 
-(defprimitive / (&rest args)
+(defprimitive-fn / (&rest args)
   (apply #'/ args))
 
-(defprimitive funcall (f &rest args)
+(defprimitive-fn funcall (f &rest args)
   (cl-apply f args))
 
-(defprimitive apply (f &rest args)
+(defprimitive-fn apply (f &rest args)
   (cl-apply f (apply #'list* args)))
 
-(defprimitive eval (exp)
+(defprimitive-fn eval (exp)
   (cl-eval exp *env* *fenv*))
