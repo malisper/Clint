@@ -1,12 +1,6 @@
 (defvar *env* '() "The global variable environment.")
 (defvar *fenv* '() "The global function environment.")
 
-(defun get-val (var env)
-  "Looks up the value of the variable VAR in the enviornment ENV.
-   This works for both the variable environment and the function
-   environment."
-  (cadr (assoc var env)))
-
 (defun cl-eval (exp env fenv)
   "Evaluates EXP in ENV."
   (cond ((symbolp exp) (get-val exp env))
@@ -23,6 +17,15 @@
 			      (eval-all (cdr exp) env fenv)
 			      env
 			      fenv))))))))
+
+(defun get-val (var env)
+  "Looks up the value of the variable VAR in the enviornment ENV.
+   This works for both the variable environment and the function
+   environment."
+  (let ((pair (assoc var env)))
+    (if pair
+	(cadr pair)
+	(error "Unbound variable or procedure ~A." var))))
 
 (defun eval-all (exps env fenv)
   "Evaluates all of EXPS in the variable environment and function
