@@ -16,10 +16,13 @@
            (function (cl-function (cadr exp) env fenv))
 	   (if (cl-eval-if (cdr exp) env fenv))
 	   (progn (car (last (eval-all (cdr exp) env fenv))))
-	   (t (cl-apply (cl-function (car exp) env fenv)
-			(eval-all (cdr exp) env fenv)
-                env
-                fenv))))))
+	   (t (let ((x (cl-function (car exp) env fenv)))
+		(if (typep x 'macro)
+		    (cl-eval (cl-apply (macro-fn x) (cdr exp)) env fenv)
+		    (cl-apply (cl-function (car exp) env fenv)
+			      (eval-all (cdr exp) env fenv)
+			      env
+			      fenv))))))))
 
 (defun eval-all (exps env fenv)
   "Evaluates all of EXPS in the variable environment and function
@@ -57,8 +60,11 @@
    (env  :initarg :env  :accessor fn-env)
    (fenv :initarg :fenv :accessor fn-fenv)))
 
+(defclass macro (fn)
+  ((fn :initarg :macro-fn :accessor macro-fn)))
+
 (defclass prim-fn (fn)
-  ((fn :initarg :prim-code :accessor prim-code)))
+  ((prim-code :initarg :prim-code :accessor prim-code)))
 
 (defun add-progn (exps)
   "Adds a progn to a list of expressions."
@@ -87,6 +93,16 @@
          (setf (cadr pair) fn)
          (push (list ',name fn) *fenv*))))
 
+(defmacro defprimitive-macro (name args &body body)
+  "Define a macro to be put in the interpreter."
+  `(let ((pair (assoc ',name *fenv*))
+	 (fn (make-instance 'macro
+	       :macro-fn (make-instance 'prim-fn
+			   :prim-code (lambda ,args ,@body)))))
+     (if pair
+	 (setf (cadr pair) fn)
+	 (push (list ',name fn) *fenv*))))
+
 (defprimitive-fn + (&rest args)
   (apply #'+ args))
 
@@ -107,3 +123,23 @@
 
 (defprimitive-fn eval (exp)
   (cl-eval exp *env* *fenv*))
+
+(defprimitive-macro let (bindings &rest exps)
+  `((lambda ,(mapcar #'car bindings) ,@exps)
+    ,@(mapcar #'cadr bindings)))
+
+(defprimitive-macro cond (&rest clauses)
+  (cond ((null clauses) nil)
+	((null (cdar clauses))
+	 (let ((g (gensym)))
+	   `(let ((,g ,(caar clauses)))
+	      (if ,g
+		  ,g
+		  (cond ,@(cdr clauses))))))
+	(:else
+	  `(if ,(caar clauses)
+	       ,(add-progn (cdar clauses))
+	       (cond ,@(cdr clauses))))))
+
+(defprimitive-macro lambda (&rest body)
+  `(function (lambda ,@body)))
