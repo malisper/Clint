@@ -1,3 +1,9 @@
+(defpackage :clint
+  (:nicknames :cln :clint)
+  (:use :cl))
+
+(in-package :clint)
+
 (defvar *env* '() "The global variable environment.")
 (defvar *fenv* '() "The global function environment.")
 
@@ -18,11 +24,15 @@
 			      env
 			      fenv))))))))
 
+(defclass cl-symbol ()
+  ((name    :initarg :name    :accessor cl-symbol-name)
+   (package :initarg :package :accessor cl-get-package)))
+
 (defun get-val (var env)
   "Looks up the value of the variable VAR in the enviornment ENV.
    This works for both the variable environment and the function
    environment."
-  (let ((pair (assoc var env)))
+  (let ((pair (assoc var env :test #'eq)))
     (if pair
 	(cadr pair)
 	(error "Unbound variable or procedure ~A." var))))
