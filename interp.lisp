@@ -4,6 +4,10 @@
 
 (in-package :clint)
 
+(defclass cl-symbol ()
+  ((name    :initarg :name    :accessor cl-symbol-name)
+   (package :initarg :package :accessor cl-symbol-package)))
+
 (defvar *env* '() "The global variable environment.")
 (defvar *fenv* '() "The global function environment.")
 
@@ -23,10 +27,6 @@
 			      (cl-eval-all (cdr exp) env fenv)
 			      env
 			      fenv))))))))
-
-(defclass cl-symbol ()
-  ((name    :initarg :name    :accessor cl-symbol-name)
-   (package :initarg :package :accessor cl-get-package)))
 
 (defun get-val (var env)
   "Looks up the value of the variable VAR in the enviornment ENV.
