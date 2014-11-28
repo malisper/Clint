@@ -8,14 +8,25 @@
   ((name    :initarg :name    :accessor cl-symbol-name)
    (package :initarg :package :accessor cl-symbol-package)))
 
+(defmethod print-object ((obj cl-symbol) s)
+  "Print a cl-symbol."
+  (with-slots (name) obj
+    (format s "~A" name)))
+
 (defvar *env* '() "The global variable environment.")
 (defvar *fenv* '() "The global function environment.")
 
+(defmacro top-eval (exp)
+  "A version of cl-eval that is meant to be used for interaction.
+   This one automatically converts all symbols to cl-symbols and
+   only requires a single argument."
+  `(cl-eval (symbols->cl-symbols ',exp) *env* *fenv*))
+
 (defun cl-eval (exp env fenv)
   "Evaluates EXP in ENV."
-  (cond ((symbolp exp) (get-val exp env))
+  (cond ((typep exp 'cl-symbol) (get-val exp env))
 	((atom exp) exp)
-        ((case (first exp)
+        ((case (and (typep (car exp) 'cl-symbol) (intern (cl-symbol-name (car exp)))) ; A hack I want to get rid of.
 	   (quote (cadr exp))
            (function (cl-function (cadr exp) env fenv))
 	   (if (cl-eval-if (cdr exp) env fenv))
@@ -53,7 +64,7 @@
 
 (defun lambdap (x)
   "Is this the code for a lambda expression?"
-  (and (listp x) (eql (car x) 'lambda)))
+  (and (listp x) (equalp (cl-symbol-name (car x)) "LAMBDA")))
 
 (defun cl-function (exp env fenv)
   "Returns the function that EXP names."
@@ -81,7 +92,8 @@
 
 (defun add-progn (exps)
   "Adds a progn to a list of expressions."
-  (cons 'progn exps))
+  ;; Remove use of cl-intern.
+  (cons (cl-intern "PROGN") exps))
 
 (defun cl-apply (f args &optional (env *env*) (fenv *fenv*))
   "Apply a function or symbol to the arguments in the variable
@@ -100,21 +112,60 @@
 
 (defmacro defprimitive-fn (name args &body body)
   "Define a primitive to be put in the interpreter."
-  `(let ((pair (assoc ',name *fenv*))
-         (fn (make-instance 'prim-fn :prim-code (lambda ,args ,@body))))
+  `(let* ((cl-sym (cl-intern (symbol-name ',name)))
+	  (pair (assoc cl-sym *fenv*))
+	  (fn (make-instance 'prim-fn :prim-code (lambda ,args ,@body))))
      (if pair
          (setf (cadr pair) fn)
-         (push (list ',name fn) *fenv*))))
+         (push (list cl-sym fn) *fenv*))))
+
+(defvar *package-created* nil
+  "True if the *package* variable has been bound.")
+
+;; The following is very messy code that needs to be cleaned up.
+(let* ((cl-package (if *package-created*
+		       (cadr (assoc (cl-intern "*PACKAGE*") *env*))
+		       (make-hash-table :test #'equalp)))
+       (cl-package-name (if *package-created*
+			    (cl-intern "*PACKAGE*")
+			    (make-instance 'cl-symbol
+					   :name "*PACKAGE*"
+					   :package cl-package))))
+  (unless *package-created*
+    (setf (gethash "*PACKAGE*" cl-package) cl-package-name)
+    (push (list cl-package-name cl-package) *env*)
+    (setf *package-created* t))
+  (defun cl-intern (name &optional (package (get-val cl-package-name *env*)))
+    "Interns a symbol in the interpreter in the given package."
+    (or (gethash name package)
+	(setf (gethash name package)
+	      (make-instance 'cl-symbol :name name :package package)))))
+
+(defun maptree (f tree)
+  "Maps the procedure F over the tree TREE."
+  (cond ((null tree) '())
+	((atom tree) (funcall f tree))
+	(:else (cons (maptree f (car tree))
+		     (maptree f (cdr tree))))))
+
+(defun symbols->cl-symbols (code)
+  "Converts all symbols given to symbols for the interpreter."
+    (maptree (lambda (x)
+	       (if (typep x 'symbol)
+		   (cl-intern (symbol-name x))
+		   x))
+	     code))
 
 (defmacro defprimitive-macro (name args &body body)
   "Define a macro to be put in the interpreter."
-  `(let ((pair (assoc ',name *fenv*))
-	 (fn (make-instance 'macro
-	       :macro-fn (make-instance 'prim-fn
-			   :prim-code (lambda ,args ,@body)))))
+  `(let* ((cl-sym (cl-intern (symbol-name ',name)))
+	  (pair (assoc cl-sym *fenv*))
+	  (fn (make-instance 'macro
+		:macro-fn (make-instance 'prim-fn
+			    :prim-code (lambda ,args ,@body)))))
      (if pair
 	 (setf (cadr pair) fn)
-	 (push (list ',name fn) *fenv*))))
+	 (push (list cl-sym fn) *fenv*))))
 
 (defprimitive-fn + (&rest args)
   (apply #'+ args))
@@ -138,21 +189,24 @@
   (cl-eval exp *env* *fenv*))
 
 (defprimitive-macro let (bindings &rest exps)
-  `((lambda ,(mapcar #'car bindings) ,@exps)
+  ;; Remove use of cl-intern.
+  `((,(cl-intern "LAMBDA") ,(mapcar #'car bindings) ,@exps)
     ,@(mapcar #'cadr bindings)))
 
 (defprimitive-macro cond (&rest clauses)
+  ;; Remove use of cl-intern.
   (cond ((null clauses) nil)
 	((null (cdar clauses))
-	 (let ((g (gensym)))
-	   `(let ((,g ,(caar clauses)))
-	      (if ,g
+	 (let ((g (cl-intern (symbol-name (gensym)))))
+	   `(,(cl-intern "LET") ((,g ,(caar clauses)))
+	      (,(cl-intern "IF") ,g
 		  ,g
-		  (cond ,@(cdr clauses))))))
+	 	  (,(cl-intern "COND") ,@(cdr clauses))))))
 	(:else
-	  `(if ,(caar clauses)
+	 `(,(cl-intern "IF") ,(caar clauses)
 	       ,(add-progn (cdar clauses))
-	       (cond ,@(cdr clauses))))))
+	       (,(cl-intern "COND") ,@(cdr clauses))))))
 
 (defprimitive-macro lambda (&rest body)
-  `(function (lambda ,@body)))
+  ;; Remove use of cl-intern.
+  `(,(cl-intern "FUNCTION") (,(cl-intern "LAMBDA") ,@body)))
