@@ -13,6 +13,14 @@
   (with-slots (name) obj
     (format s "~A" name)))
 
+;; Right now the ^ reader macro causes interning of the symbol into
+;; the current package as opposed to the package at compile-time.
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (set-macro-character #\^
+    (lambda (stream char)
+      (declare (ignore char))
+      `(cl-intern (symbol-name ',(read stream t nil t))))))
+
 (defvar *env* '() "The global variable environment.")
 (defvar *fenv* '() "The global function environment.")
 
@@ -64,7 +72,7 @@
 
 (defun lambdap (x)
   "Is this the code for a lambda expression?"
-  (and (listp x) (equalp (cl-symbol-name (car x)) "LAMBDA")))
+  (and (listp x) (eq (car x) ^lambda)))
 
 (defun cl-function (exp env fenv)
   "Returns the function that EXP names."
@@ -112,7 +120,7 @@
 
 (defmacro defprimitive-fn (name args &body body)
   "Define a primitive to be put in the interpreter."
-  `(let* ((cl-sym (cl-intern (symbol-name ',name)))
+  `(let* ((cl-sym ^,name)
 	  (pair (assoc cl-sym *fenv*))
 	  (fn (make-instance 'prim-fn :prim-code (lambda ,args ,@body))))
      (if pair
@@ -158,7 +166,7 @@
 
 (defmacro defprimitive-macro (name args &body body)
   "Define a macro to be put in the interpreter."
-  `(let* ((cl-sym (cl-intern (symbol-name ',name)))
+  `(let* ((cl-sym ^,name)
 	  (pair (assoc cl-sym *fenv*))
 	  (fn (make-instance 'macro
 		:macro-fn (make-instance 'prim-fn
@@ -190,7 +198,7 @@
 
 (defprimitive-macro let (bindings &rest exps)
   ;; Remove use of cl-intern.
-  `((,(cl-intern "LAMBDA") ,(mapcar #'car bindings) ,@exps)
+  `((,^lambda ,(mapcar #'car bindings) ,@exps)
     ,@(mapcar #'cadr bindings)))
 
 (defprimitive-macro cond (&rest clauses)
@@ -200,15 +208,15 @@
 	 (let ((g (make-instance 'cl-symbol
 		    :name (symbol-name (gensym))
 		    :package nil)))
-	   `(,(cl-intern "LET") ((,g ,(caar clauses)))
-	      (,(cl-intern "IF") ,g
-		  ,g
-	 	  (,(cl-intern "COND") ,@(cdr clauses))))))
+	   `(,^let ((,g ,(caar clauses)))
+	      (,^if ,g
+		    ,g
+		    (,^cond ,@(cdr clauses))))))
 	(:else
-	 `(,(cl-intern "IF") ,(caar clauses)
-	       ,(add-progn (cdar clauses))
-	       (,(cl-intern "COND") ,@(cdr clauses))))))
+	 `(,^if ,(caar clauses)
+		,(add-progn (cdar clauses))
+		(,^cond ,@(cdr clauses))))))
 
 (defprimitive-macro lambda (&rest body)
   ;; Remove use of cl-intern.
-  `(,(cl-intern "FUNCTION") (,(cl-intern "LAMBDA") ,@body)))
+  `(,^function (,^lambda ,@body)))
