@@ -11,12 +11,12 @@
 (defclass cl-package ()
   ((name :initarg :name :accessor cl-package-name)
    ;; I feel like there should be some other name for this per the standard.
-   (syms :initarg :syms :accessor package-syms)))
+   (syms :initarg :syms :accessor package-syms :initform (make-hash-table :test #'equalp))))
 
 (defmethod print-object ((obj cl-symbol) s)
   "Print a cl-symbol."
   (with-slots (name package) obj
-    (format s "~A:~A" (cl-package-name package) name)))
+    (format s "~A::~A" (cl-package-name package) name)))
 
 (defclass fn () ())
 
@@ -38,7 +38,7 @@
   (set-macro-character #\^
     (lambda (stream char)
       (declare (ignore char))
-      `(symbols->cl-symbols ',(read stream t nil t)))))
+      `(symbols->cl-symbols ',(read stream t nil t) "CL"))))
 
 (defvar *env* '() "The global variable environment.")
 (defvar *fenv* '() "The global function environment.")
@@ -131,31 +131,17 @@
          (setf (cadr pair) fn)
          (push (list cl-sym fn) *fenv*))))
 
-(defvar *package-created* nil
-  "True if the *package* variable has been bound.")
+(defvar *packages* (make-hash-table :test #'equalp)
+  "A hash-table containing all of the packages. Currently indexed
+   by the name as a string.")
 
-;; The following is very messy code that needs to be cleaned up.
-(let* ((cl-package (if *package-created*
-		       (cadr (assoc ^*package* *env*))
-		       (make-instance 'cl-package
-				      :name "CL"
-				      :syms (make-hash-table :test #'equalp))))
-       (cl-package-name (if *package-created*
-			    ^*package*
-			    (make-instance 'cl-symbol
-					   :name "*PACKAGE*"
-					   :package cl-package))))
-  (unless *package-created*
-    (with-slots (syms) cl-package
-      (setf (gethash "*PACKAGE*" syms) cl-package-name)
-      (push (list cl-package-name cl-package) *env*)
-      (setf *package-created* t)))
-  (defun cl-intern (name &optional (package (get-val cl-package-name *env*)))
-    "Interns a symbol in the interpreter in the given package."
-    (with-slots (syms) package
-      (or (gethash name syms)
-	  (setf (gethash name syms)
-		(make-instance 'cl-symbol :name name :package package))))))
+(defmethod initialize-instance :after ((pack cl-package) &key)
+  "Adds this package to the *packages* global variable."
+  (setf (gethash (cl-package-name pack) *packages*) pack))
+
+(defun cl-find-package (name)
+  "Returns the package of the given name."
+  (gethash name *packages*))
 
 (defun maptree (f tree)
   "Maps the procedure F over the tree TREE."
@@ -164,13 +150,33 @@
 	(:else (cons (maptree f (car tree))
 		     (maptree f (cdr tree))))))
 
-(defun symbols->cl-symbols (code)
+(defun symbols->cl-symbols (code &optional (package (get-val (cl-intern "*PACKAGE*" "CL") *env*)))
   "Converts all symbols given to symbols for the interpreter."
     (maptree (lambda (x)
 	       (if (typep x 'symbol)
-		   (cl-intern (symbol-name x))
+		   (let ((name (format nil "~W" x)))
+		     (if (find #\: name)
+			 (let* ((pos (position #\: name))
+				(sym-name (subseq name (+ pos 1)))
+				(pack-name (subseq name 0 pos)))
+			   (cl-intern sym-name pack-name))
+			 (cl-intern name package)))
 		   x))
 	     code))
+
+(let* ((cl-package (or (cl-find-package "CL")
+		       (make-instance 'cl-package :name "CL"))))
+  (defun cl-intern (name &optional (package-designator (get-val ^*package* *env*)))
+    "Interns a symbol in the interpreter in the given package."
+    (let ((package (if (typep package-designator 'cl-package)
+		       package-designator
+		       (cl-find-package package-designator))))
+      (with-slots (syms) package
+	(or (gethash name syms)
+	    (setf (gethash name syms)
+		  (make-instance 'cl-symbol :name name :package package))))))
+  (with-slots (syms) cl-package
+    (pushnew (list ^*package* cl-package) *env* :test (lambda (x y) (eq (car x) (car y))))))
 
 (defmacro defprimitive-macro (name args &body body)
   "Define a macro to be put in the interpreter."
@@ -206,6 +212,18 @@
 
 (defprimitive-fn package-name (pack)
   (cl-package-name pack))
+
+(defprimitive-fn find-package (name)
+  (cl-find-package name))
+
+(defprimitive-fn intern (&rest args)
+  (apply #'cl-intern args))
+
+(defprimitive-fn make-package (name)
+  (make-instance 'cl-package :name name))
+
+(defprimitive-fn eq (x y)
+  (eq x y))
 
 (defprimitive-macro let (bindings &rest exps)
   `((,^lambda ,(mapcar #'car bindings) ,@exps)
