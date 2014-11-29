@@ -100,8 +100,7 @@
 
 (defun add-progn (exps)
   "Adds a progn to a list of expressions."
-  ;; Remove use of cl-intern.
-  (cons (cl-intern "PROGN") exps))
+  (cons ^progn exps))
 
 (defun cl-apply (f args &optional (env *env*) (fenv *fenv*))
   "Apply a function or symbol to the arguments in the variable
@@ -132,10 +131,10 @@
 
 ;; The following is very messy code that needs to be cleaned up.
 (let* ((cl-package (if *package-created*
-		       (cadr (assoc (cl-intern "*PACKAGE*") *env*))
+		       (cadr (assoc ^*package* *env*))
 		       (make-hash-table :test #'equalp)))
        (cl-package-name (if *package-created*
-			    (cl-intern "*PACKAGE*")
+			    ^*package*
 			    (make-instance 'cl-symbol
 					   :name "*PACKAGE*"
 					   :package cl-package))))
@@ -197,12 +196,10 @@
   (cl-eval exp *env* *fenv*))
 
 (defprimitive-macro let (bindings &rest exps)
-  ;; Remove use of cl-intern.
   `((,^lambda ,(mapcar #'car bindings) ,@exps)
     ,@(mapcar #'cadr bindings)))
 
 (defprimitive-macro cond (&rest clauses)
-  ;; Remove use of cl-intern.
   (cond ((null clauses) nil)
 	((null (cdar clauses))
 	 (let ((g (make-instance 'cl-symbol
@@ -218,5 +215,4 @@
 		(,^cond ,@(cdr clauses))))))
 
 (defprimitive-macro lambda (&rest body)
-  ;; Remove use of cl-intern.
   `(,^function (,^lambda ,@body)))
