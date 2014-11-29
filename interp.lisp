@@ -8,10 +8,29 @@
   ((name    :initarg :name    :accessor cl-symbol-name)
    (package :initarg :package :accessor cl-symbol-package)))
 
+(defclass cl-package ()
+  ((name :initarg :name :accessor cl-package-name)
+   ;; I feel like there should be some other name for this per the standard.
+   (syms :initarg :syms :accessor package-syms)))
+
 (defmethod print-object ((obj cl-symbol) s)
   "Print a cl-symbol."
-  (with-slots (name) obj
-    (format s "~A" name)))
+  (with-slots (name package) obj
+    (format s "~A:~A" (cl-package-name package) name)))
+
+(defclass fn () ())
+
+(defclass lambda-fn (fn)
+  ((args :initarg :args :accessor fn-args)
+   (code :initarg :code :accessor fn-code)
+   (env  :initarg :env  :accessor fn-env)
+   (fenv :initarg :fenv :accessor fn-fenv)))
+
+(defclass macro (fn)
+  ((fn :initarg :macro-fn :accessor macro-fn)))
+
+(defclass prim-fn (fn)
+  ((prim-code :initarg :prim-code :accessor prim-code)))
 
 ;; Right now the ^ reader macro causes interning of the symbol into
 ;; the current package as opposed to the package at compile-time.
@@ -84,20 +103,6 @@
 	:fenv fenv)
       (get-val exp fenv)))
 
-(defclass fn () ())
-
-(defclass lambda-fn (fn)
-  ((args :initarg :args :accessor fn-args)
-   (code :initarg :code :accessor fn-code)
-   (env  :initarg :env  :accessor fn-env)
-   (fenv :initarg :fenv :accessor fn-fenv)))
-
-(defclass macro (fn)
-  ((fn :initarg :macro-fn :accessor macro-fn)))
-
-(defclass prim-fn (fn)
-  ((prim-code :initarg :prim-code :accessor prim-code)))
-
 (defun add-progn (exps)
   "Adds a progn to a list of expressions."
   (cons ^progn exps))
@@ -132,21 +137,25 @@
 ;; The following is very messy code that needs to be cleaned up.
 (let* ((cl-package (if *package-created*
 		       (cadr (assoc ^*package* *env*))
-		       (make-hash-table :test #'equalp)))
+		       (make-instance 'cl-package
+				      :name "CL"
+				      :syms (make-hash-table :test #'equalp))))
        (cl-package-name (if *package-created*
 			    ^*package*
 			    (make-instance 'cl-symbol
 					   :name "*PACKAGE*"
 					   :package cl-package))))
   (unless *package-created*
-    (setf (gethash "*PACKAGE*" cl-package) cl-package-name)
-    (push (list cl-package-name cl-package) *env*)
-    (setf *package-created* t))
+    (with-slots (syms) cl-package
+      (setf (gethash "*PACKAGE*" syms) cl-package-name)
+      (push (list cl-package-name cl-package) *env*)
+      (setf *package-created* t)))
   (defun cl-intern (name &optional (package (get-val cl-package-name *env*)))
     "Interns a symbol in the interpreter in the given package."
-    (or (gethash name package)
-	(setf (gethash name package)
-	      (make-instance 'cl-symbol :name name :package package)))))
+    (with-slots (syms) package
+      (or (gethash name syms)
+	  (setf (gethash name syms)
+		(make-instance 'cl-symbol :name name :package package))))))
 
 (defun maptree (f tree)
   "Maps the procedure F over the tree TREE."
@@ -194,6 +203,9 @@
 
 (defprimitive-fn eval (exp)
   (cl-eval exp *env* *fenv*))
+
+(defprimitive-fn package-name (pack)
+  (cl-package-name pack))
 
 (defprimitive-macro let (bindings &rest exps)
   `((,^lambda ,(mapcar #'car bindings) ,@exps)
