@@ -19,7 +19,7 @@
   (set-macro-character #\^
     (lambda (stream char)
       (declare (ignore char))
-      `(cl-intern (symbol-name ',(read stream t nil t))))))
+      `(symbols->cl-symbols ',(read stream t nil t)))))
 
 (defvar *env* '() "The global variable environment.")
 (defvar *fenv* '() "The global function environment.")
