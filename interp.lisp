@@ -197,7 +197,9 @@
   ;; Remove use of cl-intern.
   (cond ((null clauses) nil)
 	((null (cdar clauses))
-	 (let ((g (cl-intern (symbol-name (gensym)))))
+	 (let ((g (make-instance 'cl-symbol
+		    :name (symbol-name (gensym))
+		    :package nil)))
 	   `(,(cl-intern "LET") ((,g ,(caar clauses)))
 	      (,(cl-intern "IF") ,g
 		  ,g
