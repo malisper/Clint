@@ -100,7 +100,7 @@
 	(:else (cons (maptree f (car tree))
 		     (maptree f (cdr tree))))))
 
-(defun symbols->cl-symbols (code &optional (package (get-val (cl-intern "*PACKAGE*" "CL") *env*)))
+(defun symbols->cl-symbols (code &optional (package (get-val ^*package* *env*)))
   "Converts all symbols given to symbols for the interpreter."
     (maptree (lambda (x)
 	       (if (typep x 'symbol)
