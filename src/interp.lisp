@@ -14,12 +14,6 @@
       (declare (ignore char))
       `(symbols->cl-symbols ',(read stream t nil t) "CL"))))
 
-(defmacro top-eval (exp)
-  "A version of cl-eval that is meant to be used for interaction.
-   This one automatically converts all symbols to cl-symbols and
-   only requires a single argument."
-  `(cl-eval ^,exp *env* *fenv*))
-
 (defun cl-eval (exp env fenv)
   "Evaluates EXP in ENV."
   (cond ((typep exp 'cl-symbol) (get-val exp env))
