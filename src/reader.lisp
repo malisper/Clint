@@ -47,7 +47,7 @@
   (setf (fill-pointer *buffer*) 0)
   (catch 'read-result
     (loop for char = (read-char stream nil nil)
-          unless (and eof-error char)
+          when (and eof-error (not char))
             do (return-from cl-read eof-val)
           do (funcall (or (cl-get-macro-character char) *default-character-handler*)
                       stream char))))
@@ -65,7 +65,8 @@
   (when (> (length *buffer*) 0)
     (prog1 (if (find-if #'digit-char-p *buffer*)
                (parse-integer *buffer*)
-               (cl-intern (string-upcase (copy-seq *buffer*)) (get-val ^*package* *env*)))
+               ;; Some of the code for symbols->cl-symbols needs to be put here.
+               (cl-intern (string-upcase (copy-seq *buffer*))))
       (setf (fill-pointer *buffer*) 0))))
 
 (defun read-list (stream char)
@@ -92,9 +93,9 @@
 (cl-set-macro-character #\( 'read-list)
 (cl-set-macro-character #\' 'quote-reader)
 
-(cl-set-character-handler #\) 'end-list)
-(cl-set-character-handler #\space 'return-process-buffer)
-(cl-set-character-handler #\newline 'return-process-buffer)
+(cl-set-character-handler #\)       'end-list)
+(cl-set-character-handler #\space   'handle-whitespace)
+(cl-set-character-handler #\newline 'handle-whitespace)
 
 (defun cl-repl ()
   "A REPL for the interpreter."

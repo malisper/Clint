@@ -12,4 +12,5 @@
                              (:file "fns")
                              (:file "interp")
                              (:file "primitive-fns")
-                             (:file "primitive-macros")))))
+                             (:file "primitive-macros")
+                             (:file "reader")))))
