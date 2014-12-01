@@ -4,9 +4,9 @@
   ((chars :initarg :chars :accessor readtable-chars :initform (make-hash-table))))
 
 (defparameter *buffer* (make-array 10
-                                   :element-type 'character
-                                   :adjustable t
-                                   :fill-pointer 0)
+                         :element-type 'character
+                         :adjustable t
+                         :fill-pointer 0)
   "A buffer which contains what has been read so far for an atom.")
 
 (pushnew (list ^*readtable* (make-instance 'cl-readtable)) *env*
@@ -90,8 +90,21 @@
   (declare (ignore char))
   `(,^quote ,(cl-read stream)))
 
+(defun string-reader (stream char)
+  "Reads in a string."
+  (declare (ignore char))
+  (loop with result = (make-array 10
+                        :element-type 'character
+                        :adjustable t
+                        :fill-pointer 0)
+        for char = (read-char stream)
+        until (char= char #\")
+        do (vector-push-extend char result)
+        finally (return result)))
+
 (cl-set-macro-character #\( 'read-list)
 (cl-set-macro-character #\' 'quote-reader)
+(cl-set-macro-character #\" 'string-reader)
 
 (cl-set-character-handler #\)       'end-list)
 (cl-set-character-handler #\space   'handle-whitespace)
