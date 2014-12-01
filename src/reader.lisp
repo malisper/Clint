@@ -16,14 +16,14 @@
   (lambda (stream char)
     (declare (ignore stream))
     (vector-push-extend char *buffer*))
-  "The default thing to do when reading a character.")
+  "The default handler to call when reading a character.")
 
 (defun cl-set-character-handler (char fn &optional non-terminating (readtable (get-val ^*readtable* *env*)))
   "Has the reader call FN whenever CHAR is read. The result is
    ignored. It is possible to have the result of the read be a value 
    by throwing the symbol 'read-result'. This is meant for characters
    such as whitespace which should only do something if they are
-   preceded by a symbol, number, etc."
+   preceded by an object."
   (declare (ignore non-terminating))
   (setf (gethash char (readtable-chars readtable))
         fn)
