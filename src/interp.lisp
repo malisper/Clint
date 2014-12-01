@@ -104,16 +104,19 @@
   "Converts all symbols given to symbols for the interpreter."
     (maptree (lambda (x)
 	       (if (typep x 'symbol)
-		   (let ((name (format nil "~W" x)))
-		     (if (find #\: name)
-			 (let* ((pos (position #\: name))
-                                (pack-name (subseq name 0 pos))
-				(pos-back (position #\: name :from-end t))
-				(sym-name (subseq name (+ pos-back 1))))
-			   (cl-intern sym-name pack-name))
-			 (cl-intern name package)))
-		   x))
+                   (string->cl-symbol (format nil "~W" x) package)
+                   x))
 	     code))
+
+(defun string->cl-symbol (str &optional (package (get-val ^*package* *env*)))
+  "Takes a string and returns the cl-symbol it represents. If there is no
+   package attached to the string, it is interned into PACKAGE."
+  (if (find #\: str)
+      (let* ((pack-pos (position #\: str))
+             (sym-pos  (position #\: str :from-end t)))
+        (cl-intern (subseq str (+ sym-pos 1))
+                   (subseq str 0 pack-pos)))
+      (cl-intern str package)))
 
 (let* ((cl-package (or (cl-find-package "CL")
 		       (make-instance 'cl-package :name "CL"))))

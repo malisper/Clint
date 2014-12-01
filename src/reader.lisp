@@ -66,7 +66,7 @@
     (prog1 (if (every #'digit-char-p *buffer*)
                (parse-integer *buffer*)
                ;; Some of the code for symbols->cl-symbols needs to be put here.
-               (cl-intern (string-upcase (copy-seq *buffer*))))
+               (string->cl-symbol (copy-seq *buffer*)))
       (setf (fill-pointer *buffer*) 0))))
 
 (defun read-list (stream char)
