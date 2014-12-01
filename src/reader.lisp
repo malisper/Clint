@@ -116,6 +116,11 @@
 (cl-set-character-handler #\space   'handle-whitespace)
 (cl-set-character-handler #\newline 'handle-whitespace)
 
+(defun eval-string (str)
+  "Evaluate an expression from the given string."
+  (with-input-from-string (stream str)
+    (cl-eval (cl-read stream) *env* *fenv*)))
+
 (defun cl-repl ()
   "A REPL for the interpreter."
   (loop (format t "~&=> ")
