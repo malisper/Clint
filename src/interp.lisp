@@ -130,6 +130,6 @@
 (defmethod print-object :before ((sym cl-symbol) s)
   "Print the package of the symbol if it is not the current package."
   (let ((current-package (get-val ^*package* *env*)))
-    (with-slots (package name) sym
+    (with-slots (package) sym
       (unless (eq package current-package)
         (format s "~A::" (cl-package-name package))))))
