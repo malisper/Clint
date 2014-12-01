@@ -63,7 +63,7 @@
 (defun process-buffer ()
   "Take whatever is in the buffer and return it."
   (when (> (length *buffer*) 0)
-    (prog1 (if (find-if #'digit-char-p *buffer*)
+    (prog1 (if (every #'digit-char-p *buffer*)
                (parse-integer *buffer*)
                ;; Some of the code for symbols->cl-symbols needs to be put here.
                (cl-intern (string-upcase (copy-seq *buffer*))))
