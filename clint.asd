@@ -5,6 +5,7 @@
   :version "0.1"
   :author "malisper"
   :components ((:module "src"
+                :serial t
                 :components ((:file "package")
                              (:file "syms")
                              (:file "packages")
