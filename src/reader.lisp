@@ -42,6 +42,7 @@
   (gethash char (readtable-chars readtable)))
 
 (defun cl-read (&optional (stream *standard-input*) eof-error eof-val recur-p)
+  "Read in an expression."
   (declare (ignore recur-p))
   (setf (fill-pointer *buffer*) 0)
   (catch 'read-result
@@ -96,5 +97,6 @@
 (cl-set-character-handler #\newline 'return-process-buffer)
 
 (defun cl-repl ()
+  "A REPL for the interpreter."
   (loop (format t "~&=> ")
         (format t "~&~A" (cl-eval (cl-read) *env* *fenv*))))
