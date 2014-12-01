@@ -14,22 +14,41 @@
       (declare (ignore char))
       `(symbols->cl-symbols ',(read stream t nil t) "CL"))))
 
+(defmacro switchlet (var exp &rest clauses)
+  "Equivalent to switch but binds EXP to VAR."
+  `(let ((,var ,exp))
+     ,(labels ((recur (left)
+                 (cond ((null left) nil)
+                       ((null (cdr left)) (car left))
+                       (:else `(if (eql ,var ,(car left))
+                                   ,(cadr left)
+                                   ,(recur (cddr left)))))))
+        (recur clauses))))
+
+(defmacro switch (exp &rest clauses)
+  "Similar to case but the expressions being compared against are
+   evaluated and has slightley different syntax. The syntax is
+
+   (switch <exp-1> <consequence-1> ... <consequence-n> [<else-exp>])"
+  `(switchlet ,(gensym) ,exp ,@clauses))
+
 (defun cl-eval (exp env fenv)
   "Evaluates EXP in ENV."
   (cond ((typep exp 'cl-symbol) (get-val exp env))
 	((atom exp) exp)
-        ((case (and (typep (car exp) 'cl-symbol) (intern (cl-symbol-name (car exp)))) ; A hack I want to get rid of.
-	   (quote (cadr exp))
-           (function (cl-function (cadr exp) env fenv))
-	   (if (cl-eval-if (cdr exp) env fenv))
-	   (progn (car (last (cl-eval-all (cdr exp) env fenv))))
-	   (t (let ((x (cl-function (car exp) env fenv)))
-		(if (typep x 'macro)
-		    (cl-eval (cl-apply (macro-fn x) (cdr exp)) env fenv)
-		    (cl-apply (cl-function (car exp) env fenv)
-			      (cl-eval-all (cdr exp) env fenv)
-			      env
-			      fenv))))))))
+        ((switch     (car exp)
+           ^quote    (cadr exp)
+           ^function (cl-function (cadr exp) env fenv)
+           ^if       (cl-eval-if (cdr exp) env fenv)
+           ^progn    (car (last (cl-eval-all (cdr exp) env fenv)))
+           ;; Else
+           (let ((x (cl-function (car exp) env fenv)))
+             (if (typep x 'macro)
+                 (cl-eval (cl-apply (macro-fn x) (cdr exp)) env fenv)
+                 (cl-apply (cl-function (car exp) env fenv)
+                           (cl-eval-all (cdr exp) env fenv)
+                           env
+                           fenv)))))))
 
 (defun get-val (var env)
   "Looks up the value of the variable VAR in the enviornment ENV.
