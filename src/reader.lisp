@@ -111,7 +111,7 @@
 (cl-set-macro-character #\' 'quote-reader)
 (cl-set-macro-character #\" 'string-reader)
 
-(cl-set-character-handler #\;       'comment-reader)
+(cl-set-character-handler #\;       'comment-handler)
 (cl-set-character-handler #\)       'end-list)
 (cl-set-character-handler #\space   'handle-whitespace)
 (cl-set-character-handler #\newline 'handle-whitespace)
