@@ -102,10 +102,16 @@
         do (vector-push-extend char result)
         finally (return result)))
 
+(defun comment-handler (stream char)
+  "Ignores the rest of the line of input."
+  (declare (ignore char))
+  (read-line stream))
+
 (cl-set-macro-character #\( 'read-list)
 (cl-set-macro-character #\' 'quote-reader)
 (cl-set-macro-character #\" 'string-reader)
 
+(cl-set-character-handler #\;       'comment-reader)
 (cl-set-character-handler #\)       'end-list)
 (cl-set-character-handler #\space   'handle-whitespace)
 (cl-set-character-handler #\newline 'handle-whitespace)
