@@ -6,7 +6,7 @@
   ((name    :initarg :name    :accessor cl-symbol-name)
    (package :initarg :package :accessor cl-symbol-package)))
 
-(defmethod print-object ((obj cl-symbol) s)
+(defmethod print-object ((sym cl-symbol) s)
   "Print a cl-symbol."
-  (with-slots (name package) obj
-    (format s "~A::~A" (cl-package-name package) name)))
+  ;; Printing of the package is handled in interp.
+  (format s "~A" (cl-symbol-name sym)))

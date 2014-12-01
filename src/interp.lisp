@@ -128,3 +128,10 @@
 		  (make-instance 'cl-symbol :name name :package package))))))
   (with-slots (syms) cl-package
     (pushnew (list ^*package* cl-package) *env* :test (lambda (x y) (eq (car x) (car y))))))
+
+(defmethod print-object :before ((sym cl-symbol) s)
+  "Print the package of the symbol if it is not the current package."
+  (let ((current-package (get-val ^*package* *env*)))
+    (with-slots (package name) sym
+      (unless (eq package current-package)
+        (format s "~A::" (cl-package-name package))))))
