@@ -7,6 +7,7 @@
   :components ((:module "src"
                 :serial t
                 :components ((:file "package")
+                             (:file "helper")
                              (:file "syms")
                              (:file "packages")
                              (:file "fns")
