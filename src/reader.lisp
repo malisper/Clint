@@ -25,8 +25,7 @@
    such as whitespace which should only do something if they are
    preceded by an object."
   (declare (ignore non-terminating))
-  (setf (gethash char (readtable-chars readtable))
-        fn)
+  (setf (gethash char (readtable-chars readtable)) fn)
   t)
 
 (defun cl-set-macro-character (char fn &optional non-terminating (readtable (get-global ^*readtable*)))
@@ -59,7 +58,7 @@
   ;; We want to return only when the buffer has a value.
   (let ((buffer (process-buffer)))
     (when buffer
-        (throw 'read-result buffer))))
+      (throw 'read-result buffer))))
 
 (defun process-buffer ()
   "Take whatever is in the buffer and return it."
