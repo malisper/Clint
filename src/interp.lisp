@@ -18,7 +18,7 @@
   "Evaluates EXP in ENV."
   (cond ((typep exp 'cl-symbol) (get-val exp env))
 	((atom exp) exp)
-        ((switch     (car exp)
+        ((switch (car exp)
            ^quote    (cadr exp)
            ^function (cl-function (cadr exp) env fenv)
            ^if       (cl-eval-if (cdr exp) env fenv)
@@ -50,10 +50,11 @@
   "Evaluates the code for an if expression in ENV. The argument CODE
    should be the list containing the code for the predicate, the code
    for the consequence, and optionally the code for the alternative."
-  (if (cl-eval (car code) env fenv)
-      (cl-eval (cadr code) env fenv)
-      (and (caddr code)
-	   (cl-eval (caddr code) env fenv))))
+  (destructuring-bind (predicate consequence &optional alternative) code
+    (if (cl-eval predicate env fenv)
+        (cl-eval consequence env fenv)
+        (when alternative
+          (cl-eval alternative env fenv)))))
 
 (defun lambdap (x)
   "Is this the code for a lambda expression?"
@@ -106,26 +107,27 @@
 (defun string->cl-symbol (str &optional (package (get-val ^*package* *env*)))
   "Takes a string and returns the cl-symbol it represents. If there is no
    package attached to the string, it is interned into PACKAGE."
-  (if (find #\: str)
+  (if (not (find #\: str))
+      (cl-intern str package)
       (let* ((pack-pos (position #\: str))
              (sym-pos  (position #\: str :from-end t)))
         (cl-intern (subseq str (+ sym-pos 1))
-                   (subseq str 0 pack-pos)))
-      (cl-intern str package)))
+                   (subseq str 0 pack-pos)))))
 
-(let* ((cl-package (or (cl-find-package "CL")
-		       (make-instance 'cl-package :name "CL"))))
-  (defun cl-intern (name &optional (package-designator (get-val ^*package* *env*)))
-    "Interns a symbol in the interpreter in the given package."
-    (let ((package (if (typep package-designator 'cl-package)
-		       package-designator
-		       (cl-find-package package-designator))))
-      (with-slots (syms) package
-	(or (gethash name syms)
-	    (setf (gethash name syms)
-		  (make-instance 'cl-symbol :name name :package package))))))
-  (with-slots (syms) cl-package
-    (pushnew (list ^*package* cl-package) *env* :test (lambda (x y) (eq (car x) (car y))))))
+(or (cl-find-package "CL") (make-instance 'cl-package :name "CL"))
+
+(defun cl-intern (name &optional (designator (get-val ^*package* *env*)))
+  "Interns a symbol in the interpreter in the given package."
+  (let ((package (if (typep designator 'cl-package)
+                     designator
+                     (cl-find-package designator))))
+    (with-slots (syms) package
+      (or (gethash name syms)
+          (setf (gethash name syms)
+                (make-instance 'cl-symbol :name name :package package))))))
+
+(pushnew (list ^*package* (cl-find-package "CL")) *env*
+         :test (lambda (x y) (eq (car x) (car y))))
 
 (defmethod print-object :before ((sym cl-symbol) s)
   "Print the package of the symbol if it is not the current package."
