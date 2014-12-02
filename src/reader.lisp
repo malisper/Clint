@@ -46,13 +46,12 @@
   (declare (ignore recur-p))
   (setf (fill-pointer *buffer*) 0)
   (catch 'read-result
-    (loop for char = (read-char stream nil nil)
-          do 
-          (when (and eof-error (not char))
-            (return-from cl-read eof-val))
-          (funcall (or (cl-get-macro-character char)
-                       *default-character-handler*)
-                   stream char))))
+    (loop for char = (read-char stream nil nil) do 
+      (when (and eof-error (not char))
+        (return-from cl-read eof-val))
+      (funcall (or (cl-get-macro-character char)
+                   *default-character-handler*)
+               stream char))))
 
 (defun handle-whitespace (&rest args)
   "Handle a whitespace."
