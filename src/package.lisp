@@ -1,3 +1,4 @@
 (defpackage :clint
   (:nicknames :cln :clint)
-  (:use :cl))
+  (:use :cl)
+  (:export :cl-repl :eval-string))

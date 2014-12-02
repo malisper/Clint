@@ -18,7 +18,7 @@
     (vector-push-extend char *buffer*))
   "The default handler to call when reading a character.")
 
-(defun cl-set-character-handler (char fn &optional non-terminating (readtable (get-val ^*readtable* *env*)))
+(defun cl-set-character-handler (char fn &optional non-terminating (readtable (get-global ^*readtable*)))
   "Has the reader call FN whenever CHAR is read. The result is
    ignored. It is possible to have the result of the read be a value 
    by throwing the symbol 'read-result'. This is meant for characters
@@ -29,7 +29,7 @@
         fn)
   t)
 
-(defun cl-set-macro-character (char fn &optional non-terminating (readtable (get-val ^*readtable* *env*)))
+(defun cl-set-macro-character (char fn &optional non-terminating (readtable (get-global ^*readtable*)))
   "Sets a macro-character to the given function in the given readtable in the interpreter."
   (cl-set-character-handler
     char
@@ -37,7 +37,7 @@
     non-terminating
     readtable))
 
-(defun cl-get-macro-character (char &optional (readtable (get-val ^*readtable* *env*)))
+(defun cl-get-macro-character (char &optional (readtable (get-global ^*readtable*)))
   "Returns the macro-character for the given char."
   (gethash char (readtable-chars readtable)))
 
@@ -47,10 +47,12 @@
   (setf (fill-pointer *buffer*) 0)
   (catch 'read-result
     (loop for char = (read-char stream nil nil)
-          when (and eof-error (not char))
-            do (return-from cl-read eof-val)
-          do (funcall (or (cl-get-macro-character char) *default-character-handler*)
-                      stream char))))
+          do 
+          (when (and eof-error (not char))
+            (return-from cl-read eof-val))
+          (funcall (or (cl-get-macro-character char)
+                       *default-character-handler*)
+                   stream char))))
 
 (defun handle-whitespace (&rest args)
   "Handle a whitespace."
@@ -65,7 +67,6 @@
   (when (> (length *buffer*) 0)
     (prog1 (if (every #'digit-char-p *buffer*)
                (parse-integer *buffer*)
-               ;; Some of the code for symbols->cl-symbols needs to be put here.
                (string->cl-symbol (copy-seq *buffer*)))
       (setf (fill-pointer *buffer*) 0))))
 

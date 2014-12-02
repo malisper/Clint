@@ -41,6 +41,10 @@
 	(cadr pair)
 	(error "Unbound variable or procedure ~A." var))))
 
+(defun get-global (var)
+  "Looks up the value of a variable in the global environment."
+  (get-val var *env*))
+
 (defun cl-eval-all (exps env fenv)
   "Evaluates all of EXPS in the variable environment and function
    environment given. Returns a list of the results."
@@ -96,7 +100,7 @@
 	(:else (cons (maptree f (car tree))
 		     (maptree f (cdr tree))))))
 
-(defun symbols->cl-symbols (code &optional (package (get-val ^*package* *env*)))
+(defun symbols->cl-symbols (code &optional (package (get-global ^*package*)))
   "Converts all symbols given to symbols for the interpreter."
     (maptree (lambda (x)
 	       (if (typep x 'symbol)
@@ -104,7 +108,7 @@
                    x))
 	     code))
 
-(defun string->cl-symbol (str &optional (package (get-val ^*package* *env*)))
+(defun string->cl-symbol (str &optional (package (get-global ^*package*)))
   "Takes a string and returns the cl-symbol it represents. If there is no
    package attached to the string, it is interned into PACKAGE."
   (if (not (find #\: str))
@@ -116,7 +120,7 @@
 
 (or (cl-find-package "CL") (make-instance 'cl-package :name "CL"))
 
-(defun cl-intern (name &optional (designator (get-val ^*package* *env*)))
+(defun cl-intern (name &optional (designator (get-global ^*package*)))
   "Interns a symbol in the interpreter in the given package."
   (let ((package (if (typep designator 'cl-package)
                      designator
@@ -131,7 +135,7 @@
 
 (defmethod print-object :before ((sym cl-symbol) s)
   "Print the package of the symbol if it is not the current package."
-  (let ((current-package (get-val ^*package* *env*)))
+  (let ((current-package (get-global ^*package*)))
     (with-slots (package) sym
       (unless (eq package current-package)
         (format s "~A::" (cl-package-name package))))))
