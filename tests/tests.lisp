@@ -3,6 +3,7 @@
 (defsuite clint ())
 (defsuite special-forms (clint))
 (defsuite arithmetic (clint))
+(defsuite appliers (clint))
 
 (deftest quote (special-forms)
   (assert-eql ^x (eval-string "'x "))
@@ -46,3 +47,16 @@
 
 (deftest +-*/ (arithmetic)
   (assert-eql 15 (eval-string "(* 5 (+ 3 (/ 8 (- 2 6)) (+ 1 1)))")))
+
+(deftest funcall (appliers)
+  (assert-eql 8 (eval-string "(funcall (lambda (x y) (+ x y 5)) 1 2)"))
+  (assert-eql 15 (eval-string "(funcall (lambda (x) (+ x 5)) 10)")))
+
+(deftest apply (appliers)
+  (assert-eql 8 (eval-string "(apply (lambda (x y) (+ x y 5)) '(1 2))"))
+  (assert-eql 120 (eval-string "(apply (lambda (w x y z) (* w x y z))
+                                       2 3 '(4 5))")))
+
+(deftest eval (appliers)
+  (assert-eql 8 (eval-string "(eval '(+ 3 5))"))
+  (assert-eql 20 (eval-string "(eval '(+ (* 5 3) 5))")))
