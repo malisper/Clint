@@ -8,6 +8,7 @@
                 :serial t
                 :components ((:file "package")
                              (:file "helper")
+                             (:file "env")
                              (:file "syms")
                              (:file "packages")
                              (:file "fns")

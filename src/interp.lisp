@@ -2,9 +2,6 @@
 
 (in-package :clint)
 
-(defvar *env* '() "The global variable environment.")
-(defvar *fenv* '() "The global function environment.")
-
 ;; A reader macro to make typing in symbols for the interpreter
 ;; easier. It is basically equivalent to quote but interns all of
 ;; the symbols into the interpreter's CL package.
@@ -16,7 +13,7 @@
 
 (defun cl-eval (exp env fenv)
   "Evaluates EXP in ENV."
-  (cond ((typep exp 'cl-symbol) (get-val exp env))
+  (cond ((typep exp 'cl-symbol) (val exp env))
 	((atom exp) exp)
         ((switch (car exp)
            ^'quote    (cadr exp)
@@ -31,19 +28,6 @@
                            (cl-eval-all (cdr exp) env fenv)
                            env
                            fenv)))))))
-
-(defun get-val (var env)
-  "Looks up the value of the variable VAR in the enviornment ENV.
-   This works for both the variable environment and the function
-   environment."
-  (let ((pair (assoc var env :test #'eq)))
-    (if pair
-	(cadr pair)
-	(error "Unbound variable or procedure ~A." var))))
-
-(defun get-global (var)
-  "Looks up the value of a variable in the global environment."
-  (get-val var *env*))
 
 (defun cl-eval-all (exps env fenv)
   "Evaluates all of EXPS in the variable environment and function
@@ -72,7 +56,7 @@
 	:code (add-progn (cddr exp))
 	:env  env
 	:fenv fenv)
-      (get-val exp fenv)))
+      (val exp fenv)))
 
 (defun add-progn (exps)
   "Adds a progn to a list of expressions."
@@ -86,12 +70,7 @@
     (lambda-fn (cl-eval (fn-code f)
                         (extend-env env (fn-args f) args)
                         fenv))
-    (symbol    (cl-apply (get-val f fenv) args env fenv))))
-
-(defun extend-env (env fn-args args)
-  "Extend a given environment. This works for both variable
-   environments and function environments."
-  (append (mapcar #'list fn-args args) env))
+    (symbol    (cl-apply (val f fenv) args env fenv))))
 
 (defun maptree (f tree)
   "Maps the procedure F over the tree TREE."
@@ -100,7 +79,7 @@
 	(:else (cons (maptree f (car tree))
 		     (maptree f (cdr tree))))))
 
-(defun symbols->cl-symbols (code &optional (package (get-global ^'*package*)))
+(defun symbols->cl-symbols (code &optional (package (global-var ^'*package*)))
   "Converts all symbols given to symbols for the interpreter."
     (maptree (lambda (x)
 	       (if (typep x 'symbol)
@@ -108,7 +87,7 @@
                    x))
 	     code))
 
-(defun string->cl-symbol (str &optional (package (get-global ^'*package*)))
+(defun string->cl-symbol (str &optional (package (global-var ^'*package*)))
   "Takes a string and returns the cl-symbol it represents. If there is no
    package attached to the string, it is interned into PACKAGE."
   (if (not (find #\: str))
@@ -120,7 +99,7 @@
 
 (or (cl-find-package "CL") (make-instance 'cl-package :name "CL"))
 
-(defun cl-intern (name &optional (designator (get-global ^'*package*)))
+(defun cl-intern (name &optional (designator (global-var ^'*package*)))
   "Interns a symbol in the interpreter in the given package."
   (let ((package (if (typep designator 'cl-package)
                      designator
@@ -130,12 +109,11 @@
           (setf (gethash name syms)
                 (make-instance 'cl-symbol :name name :package package))))))
 
-(pushnew (list ^'*package* (cl-find-package "CL")) *env*
-         :test (lambda (x y) (eq (car x) (car y))))
+(setf (global-var ^'*package*) (cl-find-package "CL"))
 
 (defmethod print-object :before ((sym cl-symbol) s)
   "Print the package of the symbol if it is not the current package."
-  (let ((current-package (get-global ^'*package*)))
+  (let ((current-package (global-var ^'*package*)))
     (with-slots (package) sym
       (unless (eq package current-package)
         (format s "~A::" (cl-package-name package))))))

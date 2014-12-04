@@ -9,8 +9,7 @@
                          :fill-pointer 0)
   "A buffer which contains what has been read so far for an atom.")
 
-(pushnew (list ^'*readtable* (make-instance 'cl-readtable)) *env*
-         :test (lambda (x y) (eq (car x) (car y))))
+(setf (global-var ^'*readtable*) (make-instance 'cl-readtable))
 
 (defparameter *default-character-handler*
   (lambda (stream char)
@@ -18,7 +17,7 @@
     (vector-push-extend char *buffer*))
   "The default handler to call when reading a character.")
 
-(defun cl-set-character-handler (char fn &optional non-terminating (readtable (get-global ^'*readtable*)))
+(defun cl-set-character-handler (char fn &optional non-terminating (readtable (global-var ^'*readtable*)))
   "Has the reader call FN whenever CHAR is read. The result is
    ignored. It is possible to have the result of the read be a value 
    by throwing the symbol 'read-result'. This is meant for characters
@@ -28,7 +27,7 @@
   (setf (gethash char (readtable-chars readtable)) fn)
   t)
 
-(defun cl-set-macro-character (char fn &optional non-terminating (readtable (get-global ^'*readtable*)))
+(defun cl-set-macro-character (char fn &optional non-terminating (readtable (global-var ^'*readtable*)))
   "Sets a macro-character to the given function in the given readtable in the interpreter."
   (cl-set-character-handler
     char
@@ -36,7 +35,7 @@
     non-terminating
     readtable))
 
-(defun cl-get-macro-character (char &optional (readtable (get-global ^'*readtable*)))
+(defun cl-get-macro-character (char &optional (readtable (global-var ^'*readtable*)))
   "Returns the macro-character for the given char."
   (gethash char (readtable-chars readtable)))
 

@@ -4,14 +4,10 @@
 
 (defmacro defprimitive-macro (name args &body body)
   "Define a macro to be put in the interpreter."
-  `(let* ((cl-sym ^',name)
-	  (pair (assoc cl-sym *fenv*))
-	  (fn (make-instance 'macro
-		:macro-fn (make-instance 'prim-fn
-			    :prim-code (lambda ,args ,@body)))))
-     (if pair
-	 (setf (cadr pair) fn)
-	 (push (list cl-sym fn) *fenv*))))
+  `(setf (global-fn ^',name)
+         (make-instance 'macro
+           :macro-fn (make-instance 'prim-fn
+                       :prim-code (lambda ,args ,@body)))))
 
 (defprimitive-macro let (bindings &rest exps)
   ^`((lambda ,(mapcar #'car bindings) ,@exps)
