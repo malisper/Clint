@@ -7,8 +7,8 @@
 (defsuite macros (clint))
 
 (deftest quote (special-forms)
-  (assert-eql ^x (eval-string "'x "))
-  (assert-equal ^(a b c) (eval-string "'(a b c)")))
+  (assert-eql ^'x (eval-string "'x "))
+  (assert-equal ^'(a b c) (eval-string "'(a b c)")))
 
 (deftest if (special-forms)
   (assert-eql 2   (eval-string "(if 1 2 3)"))

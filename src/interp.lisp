@@ -12,17 +12,17 @@
   (set-macro-character #\^
     (lambda (stream char)
       (declare (ignore char))
-      `(symbols->cl-symbols ',(read stream t nil t) "CL"))))
+      `(symbols->cl-symbols ,(read stream t nil t) "CL"))))
 
 (defun cl-eval (exp env fenv)
   "Evaluates EXP in ENV."
   (cond ((typep exp 'cl-symbol) (get-val exp env))
 	((atom exp) exp)
         ((switch (car exp)
-           ^quote    (cadr exp)
-           ^function (cl-function (cadr exp) env fenv)
-           ^if       (cl-eval-if (cdr exp) env fenv)
-           ^progn    (car (last (cl-eval-all (cdr exp) env fenv)))
+           ^'quote    (cadr exp)
+           ^'function (cl-function (cadr exp) env fenv)
+           ^'if       (cl-eval-if (cdr exp) env fenv)
+           ^'progn    (car (last (cl-eval-all (cdr exp) env fenv)))
            ;; Else
            (let ((x (cl-function (car exp) env fenv)))
              (if (typep x 'macro)
@@ -62,7 +62,7 @@
 
 (defun lambdap (x)
   "Is this the code for a lambda expression?"
-  (and (listp x) (eq (car x) ^lambda)))
+  (and (listp x) (eq (car x) ^'lambda)))
 
 (defun cl-function (exp env fenv)
   "Returns the function that EXP names."
@@ -76,7 +76,7 @@
 
 (defun add-progn (exps)
   "Adds a progn to a list of expressions."
-  (cons ^progn exps))
+  (cons ^'progn exps))
 
 (defun cl-apply (f args &optional (env *env*) (fenv *fenv*))
   "Apply a function or symbol to the arguments in the variable
@@ -100,15 +100,15 @@
 	(:else (cons (maptree f (car tree))
 		     (maptree f (cdr tree))))))
 
-(defun symbols->cl-symbols (code &optional (package (get-global ^*package*)))
+(defun symbols->cl-symbols (code &optional (package (get-global ^'*package*)))
   "Converts all symbols given to symbols for the interpreter."
     (maptree (lambda (x)
 	       (if (typep x 'symbol)
-                   (string->cl-symbol (format nil "~W" x) package)
+                   (string->cl-symbol (symbol-name x) package)
                    x))
 	     code))
 
-(defun string->cl-symbol (str &optional (package (get-global ^*package*)))
+(defun string->cl-symbol (str &optional (package (get-global ^'*package*)))
   "Takes a string and returns the cl-symbol it represents. If there is no
    package attached to the string, it is interned into PACKAGE."
   (if (not (find #\: str))
@@ -120,7 +120,7 @@
 
 (or (cl-find-package "CL") (make-instance 'cl-package :name "CL"))
 
-(defun cl-intern (name &optional (designator (get-global ^*package*)))
+(defun cl-intern (name &optional (designator (get-global ^'*package*)))
   "Interns a symbol in the interpreter in the given package."
   (let ((package (if (typep designator 'cl-package)
                      designator
@@ -130,12 +130,12 @@
           (setf (gethash name syms)
                 (make-instance 'cl-symbol :name name :package package))))))
 
-(pushnew (list ^*package* (cl-find-package "CL")) *env*
+(pushnew (list ^'*package* (cl-find-package "CL")) *env*
          :test (lambda (x y) (eq (car x) (car y))))
 
 (defmethod print-object :before ((sym cl-symbol) s)
   "Print the package of the symbol if it is not the current package."
-  (let ((current-package (get-global ^*package*)))
+  (let ((current-package (get-global ^'*package*)))
     (with-slots (package) sym
       (unless (eq package current-package)
         (format s "~A::" (cl-package-name package))))))

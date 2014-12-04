@@ -4,7 +4,7 @@
 
 (defmacro defprimitive-fn (name args &body body)
   "Define a primitive to be put in the interpreter."
-  `(let* ((cl-sym ^,name)
+  `(let* ((cl-sym ^',name)
 	  (pair (assoc cl-sym *fenv*))
 	  (fn (make-instance 'prim-fn :prim-code (lambda ,args ,@body))))
      (if pair
