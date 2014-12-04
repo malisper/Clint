@@ -3,8 +3,8 @@
 (in-package :clint)
 
 ;; A reader macro to make typing in symbols for the interpreter
-;; easier. It is basically equivalent to quote but interns all of
-;; the symbols into the interpreter's CL package.
+;; easier. It will take the result of the form that comes after it (as
+;; a tree) and convert all of the symbols in it to cl-symbols.
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (set-macro-character #\^
     (lambda (stream char)
