@@ -72,13 +72,6 @@
                         fenv))
     (symbol    (cl-apply (val f fenv) args env fenv))))
 
-(defun maptree (f tree)
-  "Maps the procedure F over the tree TREE."
-  (cond ((null tree) '())
-	((atom tree) (funcall f tree))
-	(:else (cons (maptree f (car tree))
-		     (maptree f (cdr tree))))))
-
 (defun symbols->cl-symbols (code &optional (package (global-var ^'*package*)))
   "Converts all symbols given to symbols for the interpreter."
     (maptree (lambda (x)

@@ -17,3 +17,10 @@
 
    (switch <exp-1> <consequence-1> ... <consequence-n> [<else-exp>])"
   `(switchlet ,(gensym) ,exp ,@clauses))
+
+(defun maptree (f tree)
+  "Maps the procedure F over the tree TREE."
+  (cond ((null tree) '())
+	((atom tree) (funcall f tree))
+	(:else (cons (maptree f (car tree))
+		     (maptree f (cdr tree))))))
