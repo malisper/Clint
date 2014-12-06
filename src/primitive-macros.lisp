@@ -31,7 +31,7 @@
 	   ^`(let ((,g ,(caar clauses)))
                (if ,g
                    ,g
-                   (^'cond ,@(cdr clauses))))))
+                   (cond ,@(cdr clauses))))))
 	(:else
 	 ^`(if ,(caar clauses)
                ,(add-progn (cdar clauses))
