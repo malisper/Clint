@@ -4,16 +4,25 @@
 
 (defmacro defprimitive-macro (name args &body body)
   "Define a macro to be put in the interpreter."
-  `(setf (global-fn ^',name)
-         (make-instance 'macro
-           :macro-fn (make-instance 'prim-fn
-                       :prim-code (lambda ,args ,@body)))))
+  `(progn
+     ,(when (stringp (car body))
+        `(setf (cl-doc ^',name ^'function) ,(car body)))
+     (setf (global-fn ^',name)
+           (make-instance 'macro
+             :macro-fn (make-instance 'prim-fn
+                         :prim-code (lambda ,args ,@body))))))
 
 (defprimitive-macro let (bindings &rest exps)
+  "The syntax is (let ((var val) ...) body). All of the variables
+   will be bound to the respective values."
   ^`((lambda ,(mapcar #'car bindings) ,@exps)
      ,@(mapcar #'cadr bindings)))
 
 (defprimitive-macro cond (&rest clauses)
+  "The syntax is (cond ((predicate consequence) ...)). Each predicate
+   is evaluated until one returns non-nil. Then that predicates
+   consequence is evaluated and that value is return as the result of
+   the cond."
   (cond ((null clauses) nil)
 	((null (cdar clauses))
 	 (let ((g (make-instance 'cl-symbol
@@ -29,4 +38,5 @@
                (cond ,@(cdr clauses))))))
 
 (defprimitive-macro lambda (&rest body)
+  "Define a lambda procedure."
   ^`(function (lambda ,@body)))
