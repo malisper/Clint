@@ -53,9 +53,9 @@
                (error "EOF")
                (return eof-val)))
           ((whitespace char)
-           (if (= (length buffer) 0)
-               (read-char stream)
-               (return (string->num/sym buffer))))
+           (cond ((= (length buffer) 0) (read-char stream))
+                 ((equalp buffer ".") (read-char stream) (throw 'atom (cl-read stream)))
+                 (:else (return (string->num/sym buffer)))))
           ((cl-get-macro-character char)
            (if (= (length buffer) 0)
                (progn (read-char stream)
@@ -77,7 +77,7 @@
     (catch 'end-of-list
       (loop (setf tail
                   (setf (cdr tail)
-                        (list (cl-read stream))))))
+                        (catch 'atom (list (cl-read stream)))))))
     (cdr list)))
 
 (defun end-list (stream char)
