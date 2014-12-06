@@ -93,7 +93,7 @@
 (defun sharp-quote-reader (stream char)
   "Reads in a sharp quote (#')."
   (declare (ignore char))
-  ^`(function ,(cl-read stream)))
+  ^`#',(cl-read stream))
 
 (defun string-reader (stream char)
   "Reads in a string."

@@ -39,4 +39,4 @@
 
 (defprimitive-macro lambda (&rest body)
   "Define a lambda procedure."
-  ^`(function (lambda ,@body)))
+  ^`#'(lambda ,@body))
