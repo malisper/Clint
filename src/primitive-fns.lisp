@@ -63,3 +63,15 @@
 (defprimitive-fn documentation (name type)
   "Look up the documentation for NAME under TYPE."
   (cl-doc name type))
+
+(defprimitive-fn cons (x y)
+  "Return a pair containing the elements X and Y."
+  (cons x y))
+
+(defprimitive-fn car (x)
+  "Return the first element of a pair."
+  (car x))
+
+(defprimitive-fn cdr (x)
+  "Return the second element of a pair."
+  (cdr x))
