@@ -111,6 +111,11 @@
   (read-line stream)
   (cl-read stream))
 
+(defun array-reader (stream char)
+  "Reads in an array."
+  (declare (ignore char))
+  (apply #'vector (read-list stream #\()))
+
 (cl-set-macro-character #\( 'read-list)
 (cl-set-macro-character #\) 'end-list)
 (cl-set-macro-character #\' 'quote-reader)
@@ -119,6 +124,7 @@
 
 (cl-make-dispatch-macro-character #\#)
 (cl-set-dispatch-macro-character #\# #\' 'sharp-quote-reader)
+(cl-set-dispatch-macro-character #\# #\( 'array-reader)
 
 (defun eval-string (str)
   "Evaluate an expression from the given string."
