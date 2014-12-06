@@ -1,5 +1,7 @@
 ;; Functions for working with documentation.
 
+(in-package :clint)
+
 (defparameter *docs* (make-hash-table :test #'equal)
   "A table mapping from a list containing the name and the type to
    the actual documentation.")
