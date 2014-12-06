@@ -3,85 +3,67 @@
 (defclass cl-readtable ()
   ((chars :initarg :chars :accessor readtable-chars :initform (make-hash-table))))
 
-(defparameter *buffer* (make-array 10
-                         :element-type 'character
-                         :adjustable t
-                         :fill-pointer 0)
-  "A buffer which contains what has been read so far for an atom.")
-
 (setf (global-var ^'*readtable*) (make-instance 'cl-readtable))
 
-(defparameter *default-character-handler*
-  (lambda (stream char)
-    (declare (ignore stream))
-    (vector-push-extend char *buffer*))
-  "The default handler to call when reading a character.")
-
-(defun cl-set-character-handler (char fn &optional non-terminating (readtable (global-var ^'*readtable*)))
-  "Has the reader call FN whenever CHAR is read. The result is
-   ignored. It is possible to have the result of the read be a value 
-   by throwing the symbol 'read-result'. This is meant for characters
-   such as whitespace which should only do something if they are
-   preceded by an object."
+(defun cl-set-macro-character (char fn &optional non-terminating (readtable (global-var ^'*readtable*)))
+  "Has the reader call FN whenever CHAR is read."
   (declare (ignore non-terminating))
   (setf (gethash char (readtable-chars readtable)) fn)
   t)
-
-(defun cl-set-macro-character (char fn &optional non-terminating (readtable (global-var ^'*readtable*)))
-  "Sets a macro-character to the given function in the given readtable in the interpreter."
-  (cl-set-character-handler
-    char
-    (lambda (&rest args) (throw 'read-result (apply fn args)))
-    non-terminating
-    readtable))
 
 (defun cl-get-macro-character (char &optional (readtable (global-var ^'*readtable*)))
   "Returns the macro-character for the given char."
   (gethash char (readtable-chars readtable)))
 
+(defun whitespace (char)
+  "Is this character whitespace?"
+  (member char '(#\tab #\space #\newline)))
+
+(defun adjustable-string ()
+  "Returns an adjustable string."
+  (make-array 10 :element-type 'character :adjustable t :fill-pointer 0))
+
 (defun cl-read (&optional (stream *standard-input*) eof-error eof-val recur-p)
-  "Read in an expression."
+  "Reads an expression from STREAM."
   (declare (ignore recur-p))
-  (setf (fill-pointer *buffer*) 0)
-  (catch 'read-result
-    (loop for char = (read-char stream nil nil) do 
-      (when (and eof-error (not char))
-        (return-from cl-read eof-val))
-      (funcall (or (cl-get-macro-character char)
-                   *default-character-handler*)
-               stream char))))
+  (loop with buffer = (adjustable-string)
+        for char = (peek-char nil stream nil nil) do
+        (cond ((not char)
+               (if eof-error
+                   (error "EOF")
+                   (return eof-val)))
+              ((whitespace char)
+               (if (= (length buffer) 0)
+                   (read-char stream)
+                   (return (string->num/sym buffer))))
+              ((cl-get-macro-character char)
+               (if (= (length buffer) 0)
+                   (progn (read-char stream)
+                          (return (funcall (cl-get-macro-character char)
+                                           stream char)))
+                   (return (string->num/sym buffer))))
+              (:else (vector-push-extend (read-char stream) buffer)))))
 
-(defun handle-whitespace (&rest args)
-  "Handle a whitespace."
-  (declare (ignore args))
-  ;; We want to return only when the buffer has a value.
-  (let ((buffer (process-buffer)))
-    (when buffer
-      (throw 'read-result buffer))))
-
-(defun process-buffer ()
-  "Take whatever is in the buffer and return it."
-  (when (> (length *buffer*) 0)
-    (prog1 (if (every #'digit-char-p *buffer*)
-               (parse-integer *buffer*)
-               (string->cl-symbol (copy-seq *buffer*)))
-      (setf (fill-pointer *buffer*) 0))))
+(defun string->num/sym (str)
+  "Converts a string to either a number or a cl-symbol."
+  (if (every #'digit-char-p str)
+      (parse-integer str)
+      (cl-intern str)))
 
 (defun read-list (stream char)
   "Reads in a list."
   (declare (ignore char))
-  (let ((result '()))
-    (catch 'end-list
-      (loop (push (cl-read stream) result)))
-    (let ((buffer (process-buffer)))
-      (when buffer
-        (push buffer result)))
-    (nreverse result)))
+  (let* ((list (list nil)) (tail list))
+    (catch 'end-of-list
+      (loop (setf tail
+                  (setf (cdr tail)
+                        (list (cl-read stream))))))
+    (cdr list)))
 
 (defun end-list (stream char)
-  "Handles the end of a list."
+  "Signals the end of a list."
   (declare (ignore stream char))
-  (throw 'end-list nil))
+  (throw 'end-of-list nil))
 
 (defun quote-reader (stream char)
   "Reads in a quote."
@@ -91,28 +73,24 @@
 (defun string-reader (stream char)
   "Reads in a string."
   (declare (ignore char))
-  (loop with result = (make-array 10
-                        :element-type 'character
-                        :adjustable t
-                        :fill-pointer 0)
+  (loop with result = (adjustable-string)
         for char = (read-char stream)
         until (char= char #\")
         do (vector-push-extend char result)
         finally (return result)))
 
-(defun comment-handler (stream char)
-  "Ignores the rest of the line of input."
+(defun comment-reader (stream char)
+  "Ignores the rest of the line of input and returns the next thing 
+   after that."
   (declare (ignore char))
-  (read-line stream))
+  (read-line stream)
+  (cl-read stream))
 
 (cl-set-macro-character #\( 'read-list)
+(cl-set-macro-character #\) 'end-list)
 (cl-set-macro-character #\' 'quote-reader)
 (cl-set-macro-character #\" 'string-reader)
-
-(cl-set-character-handler #\;       'comment-handler)
-(cl-set-character-handler #\)       'end-list)
-(cl-set-character-handler #\space   'handle-whitespace)
-(cl-set-character-handler #\newline 'handle-whitespace)
+(cl-set-macro-character #\; 'comment-reader)
 
 (defun eval-string (str)
   "Evaluate an expression from the given string."
