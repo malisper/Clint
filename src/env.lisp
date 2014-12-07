@@ -16,7 +16,8 @@
    misnomer because the actual boundp only works with global values.
    This one will return true for lexically bound symbols."
   (some (lambda (e)
-          (assoc var e))
+          ;; Use equal so (setf ...) can be used as a function.
+          (assoc var e :test #'equal))
         env))
 
 (defun binding (var env)
