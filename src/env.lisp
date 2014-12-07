@@ -41,7 +41,8 @@
   (let ((binding (cl-boundp var env)))
     (if binding
         (setf (cadr binding) val)
-        (push (list var val) (car (last env))))))
+        (progn (push (list var val) (car (last env)))
+               val))))
 
 (defun global-var (var)
   "Looks up the value of the global variable named by VAR."

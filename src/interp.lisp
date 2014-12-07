@@ -20,7 +20,7 @@
            ^'function (cl-function (cadr exp) env fenv)
            ^'if       (cl-eval-if (cdr exp) env fenv)
            ^'progn    (car (last (cl-eval-all (cdr exp) env fenv)))
-           ^'setq     (setf (val (cadr exp) env) (caddr exp))
+           ^'setq     (setf (val (cadr exp) env) (cl-eval (caddr exp) env fenv))
            ;; Else
            (let ((x (cl-function (car exp) env fenv)))
              (if (typep x 'macro)
