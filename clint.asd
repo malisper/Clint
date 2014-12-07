@@ -13,6 +13,7 @@
                              (:file "syms")
                              (:file "packages")
                              (:file "fns")
+                             (:file "setf")
                              (:file "interp")
                              (:file "primitive-fns")
                              (:file "primitive-macros")

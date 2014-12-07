@@ -24,7 +24,7 @@
   (apply #'* args))
 
 (defprimitive-fn / (&rest args)
-  "Div"
+  "Divides all of the arguments after the first, from the first."
   (apply #'/ args))
 
 (defprimitive-fn funcall (f &rest args)
@@ -72,6 +72,30 @@
   "Return the first element of a pair."
   (car x))
 
+(defprimitive-fn (setf car) (val pair)
+  "Sets the car of a pair."
+  (setf (car pair) val))
+
 (defprimitive-fn cdr (x)
   "Return the second element of a pair."
   (cdr x))
+
+(defprimitive-fn (setf cdr) (val pair)
+  "Sets the cdr of a pair."
+  (setf (cdr pair) val))
+
+(defprimitive-fn rplacd (pair val)
+  "Sets the cdr of PAIR to VAL."
+  (rplacd pair val))
+
+(defprimitive-fn rplaca (pair val)
+  "Sets the car of a cons pair to VAL."
+  (rplaca pair val))
+
+(defprimitive-fn symbol-function (name)
+  "Returns the global procedure named by NAME."
+  (val name *fenv*))
+
+(defprimitive-fn (setf symbol-function) (val name)
+  "Set the global procedure named by NAME to VAL."
+  (setf (val name *fenv*) val))

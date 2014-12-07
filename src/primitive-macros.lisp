@@ -47,3 +47,15 @@
 (defprimitive-macro lambda (&rest body)
   "Define a lambda procedure."
   ^`#'(lambda ,@body))
+
+(defprimitive-macro setf (place val)
+  "Set the value of PLACE to VAL."
+  (multiple-value-bind (temps vals stores store-form access-form)
+                       (cl-get-setf-expansion place)
+    (declare (ignore access-form))
+    ^`(let* (,@(mapcar #'list temps vals) (,(car stores) ,val))
+        ,store-form)))
+
+(defprimitive-macro defun (name args &rest body)
+  "Define a procedure."
+  ^`(setf (symbol-function ',name) (lambda ,args ,@body)))
