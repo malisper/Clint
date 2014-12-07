@@ -10,18 +10,33 @@
    list of expressions, (3) a symbol which will hold the result, (4)
    the expression to evaluate to do the setting, and (5) an expression
    whose result will be the current value of the place."
-  (funcall (gethash (car form) *setf-expanders*
-             (lambda (args)
-               (let ((result (gensym))
-                     (gensyms (loop for x in (cdr form) collect (gensym))))
-                 (values gensyms
-                         args
-                         ^`(,result)
-                         ^`(funcall #'(setf ,(car form)) ,result ,@gensyms)
-                         ^`(,(car form) ,@gensyms)))))
-           (cdr form)))
+  (let ((result ^(gensym)))
+    (if (typep form 'cl-symbol)
+        (values '() '() `(,result) `(setq ,form ,result) form)
+        (funcall (gethash (car form) *setf-expanders*
+                   (lambda (args)
+                     (let ((result (gensym))
+                           (gensyms (loop for x in (cdr form)
+                                          collect (gensym))))
+                       (values gensyms
+                               args
+                               ^`(,result)
+                               ^`(funcall #'(setf ,(car form))
+                                          ,result ,@gensyms)
+                               ^`(,(car form) ,@gensyms)))))
+                 (cdr form)))))
 
 (defmacro cl-define-setf-expander (name args &body body)
   "Define a setf expander for NAME."
   `(setf (gethash ^',name *setf-expanders*)
          (lambda ,args ,@body)))
+
+(defmacro cl-define-modify-macro (name lambda-list fn)
+  "Define a modify macro."
+  (let ((val (gensym)))
+    `(defprimitive-macro ,name (,val ,@lambda-list)
+       (multiple-value-bind (temps vals stores store-form access-form)
+                            (cl-get-setf-expansion ,val)
+         ^`(let* (,@(mapcar #'list temps vals)
+                  (,@stores (,',fn ,access-form ,,@lambda-list)))
+             ,store-form)))))
