@@ -18,6 +18,13 @@
   ^`((lambda ,(mapcar #'car bindings) ,@exps)
      ,@(mapcar #'cadr bindings)))
 
+(defprimitive-macro let* (bindings &rest exps)
+  "Same thing as let but the variables are bound sequentially, not in
+   parallel."
+  (if (null bindings)
+      ^`(progn ,@exps)
+      ^`(let (,(car bindings)) (let* ,(cdr bindings) ,@exps))))
+
 (defprimitive-macro cond (&rest clauses)
   "The syntax is (cond ((predicate consequence) ...)). Each predicate
    is evaluated until one returns non-nil. Then that predicates
