@@ -13,18 +13,18 @@
   (let ((result ^(gensym)))
     (if (typep form 'cl-symbol)
         (values '() '() `(,result) `(setq ,form ,result) form)
-        (funcall (gethash (car form) *setf-expanders*
-                   (lambda (args)
-                     (let ((result (gensym))
-                           (gensyms (loop for x in (cdr form)
-                                          collect (gensym))))
-                       (values gensyms
-                               args
-                               ^`(,result)
-                               ^`(funcall #'(setf ,(car form))
-                                          ,result ,@gensyms)
-                               ^`(,(car form) ,@gensyms)))))
-                 (cdr form)))))
+        (apply (gethash (car form) *setf-expanders*
+                 (lambda (args)
+                   (let ((result (gensym))
+                         (gensyms (loop for x in (cdr form)
+                                     collect (gensym))))
+                     (values gensyms
+                             args
+                             ^`(,result)
+                             ^`(funcall #'(setf ,(car form))
+                                        ,result ,@gensyms)
+                             ^`(,(car form) ,@gensyms)))))
+               (cdr form)))))
 
 (defmacro cl-define-setf-expander (name args &body body)
   "Define a setf expander for NAME."
@@ -40,3 +40,13 @@
          ^`(let* (,@(mapcar #'list temps vals)
                   (,@stores (,',fn ,access-form ,,@lambda-list)))
              ,store-form)))))
+
+(defmacro cl-defsetf (access update)
+  "Defines UPDATE to be called when using (setf (ACCESS ...) ...)."
+  `(cl-define-setf-expander ,access (&rest args)
+     (let ((gensyms (loop for a in args collect (gensym))) (result (gensym)))
+       (values gensyms
+               args
+               ^`(,result)
+               ^`(,',update ,@gensyms ,result)
+               ^`(,',access ,@gensyms)))))
