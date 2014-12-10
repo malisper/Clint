@@ -5,6 +5,7 @@
 (defsuite arithmetic (clint))
 (defsuite appliers (clint))
 (defsuite macros (clint))
+(defsuite setters (clint))
 
 (deftest quote (special-forms)
   (assert-eql ^'x (eval-string "'x "))
@@ -71,3 +72,11 @@
 (deftest cond (macros)
   (assert-eql 2 (eval-string "(cond (1 2) (3 4))"))
   (assert-eql 4 (eval-string "(cond ('() 2) (3 4))")))
+
+(deftest setq (setters)
+  (assert-eql 5  (eval-string "(let ((x 10)) (setq x 5) x)"))
+  (assert-eql 10 (eval-string "(let ((y 15)) (setq y 10) y)")))
+
+(deftest setf (setters)
+  (assert-equal '(5 2) (eval-string "(let ((x (cons 1 (cons 2 '())))) (setf (car x) 5) x)"))
+  (assert-equal '(1 10) (eval-string "(let ((x (cons 1 (cons 2 '())))) (setf (car (cdr x)) 10) x)")))

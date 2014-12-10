@@ -15,10 +15,10 @@
   (let ((result ^(gensym)))
     (if (typep form 'cl-symbol)
         (values '() '() `(,result) `(setq ,form ,result) form)
-        (funcall (gethash (car form) *setf-expanders*
-                   (lambda (args)
-                     (let ((result (gensym))
-                           (gensyms (loop for x in args collect (gensym))))
+        (apply (gethash (car form) *setf-expanders*
+                 (lambda (&rest args)
+                   (let ((result (gensym))
+                         (gensyms (loop for x in args collect (gensym))))
                        (values gensyms
                                args
                                ^`(,result)
