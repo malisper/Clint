@@ -1,5 +1,7 @@
 ;; Implementation for setf.
 
+(in-package :clint)
+
 (defparameter *setf-expanders* (make-hash-table)
   "A table containing all of the setf-expanders, indexed by the name
    of the procedure used to access the place.")
@@ -13,18 +15,17 @@
   (let ((result ^(gensym)))
     (if (typep form 'cl-symbol)
         (values '() '() `(,result) `(setq ,form ,result) form)
-        (apply (gethash (car form) *setf-expanders*
-                 (lambda (args)
-                   (let ((result (gensym))
-                         (gensyms (loop for x in (cdr form)
-                                     collect (gensym))))
-                     (values gensyms
-                             args
-                             ^`(,result)
-                             ^`(funcall #'(setf ,(car form))
-                                        ,result ,@gensyms)
-                             ^`(,(car form) ,@gensyms)))))
-               (cdr form)))))
+        (funcall (gethash (car form) *setf-expanders*
+                   (lambda (args)
+                     (let ((result (gensym))
+                           (gensyms (loop for x in args collect (gensym))))
+                       (values gensyms
+                               args
+                               ^`(,result)
+                               ^`(funcall #'(setf ,(car form))
+                                          ,result ,@gensyms)
+                               ^`(,(car form) ,@gensyms)))))
+                 (cdr form)))))
 
 (defmacro cl-define-setf-expander (name args &body body)
   "Define a setf expander for NAME."

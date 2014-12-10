@@ -99,3 +99,15 @@
 (defprimitive-fn (setf symbol-function) (val name)
   "Set the global procedure named by NAME to VAL."
   (setf (val name *fenv*) val))
+
+(defprimitive-fn macro-function (name)
+  "Returns the macro definition for NAME."
+  (let ((fn (val name *fenv*)))
+    (if (typep fn 'macro)
+        fn
+        nil)))
+
+(defprimitive-fn (setf macro-function) (val name)
+  "Sets the macro fn for NAME."
+  (setf (val name *fenv*) (make-instance 'macro
+                            :macro-fn val)))
