@@ -5,6 +5,7 @@
 (defsuite arithmetic (clint))
 (defsuite appliers (clint))
 (defsuite macros (clint))
+(defsuite list (clint))
 (defsuite setters (clint))
 
 (deftest quote (special-forms)
@@ -73,10 +74,29 @@
   (assert-eql 2 (eval-string "(cond (1 2) (3 4))"))
   (assert-eql 4 (eval-string "(cond ('() 2) (3 4))")))
 
+(deftest car (list)
+  (assert-eql 1 (eval-string "(let ((x (cons 1 (cons 2 '())))) (car x))"))
+  (assert-eql '() (eval-string "(let ((x '())) (car x))"))
+  (assert-eql ^'a (eval-string "(car '(a . b))")))
+
+(deftest cdr (list)
+  (assert-equal '(2) (eval-string "(let ((x (cons 1 (cons 2 '())))) (cdr x))"))
+  (assert-eql '() (eval-string "(let ((x '())) (car x))"))
+  (assert-eql ^'b (eval-string "(cdr '(a . b))")))
+
 (deftest setq (setters)
   (assert-eql 5  (eval-string "(let ((x 10)) (setq x 5) x)"))
   (assert-eql 10 (eval-string "(let ((y 15)) (setq y 10) y)")))
 
 (deftest setf (setters)
-  (assert-equal '(5 2) (eval-string "(let ((x (cons 1 (cons 2 '())))) (setf (car x) 5) x)"))
-  (assert-equal '(1 10) (eval-string "(let ((x (cons 1 (cons 2 '())))) (setf (car (cdr x)) 10) x)")))
+  (assert-equal 5 (eval-string "(let ((x 10)) (setf x 5) x)"))
+  (assert-equal '(1 10) (eval-string "(let ((x 10)) (setf x '(1 10)))")))
+
+(deftest setf-car (setters)
+  (assert-equal '(10 2 3) (eval-string "(let ((x (cons 1 (cons 2 (cons 3 '()))))) (setf (car x) 10) x)"))
+  (assert-equal '(1 10 3) (eval-string "(let ((x (cons 1 (cons 2 (cons 3 '()))))) (setf (car (cdr x)) 10) x)")))
+
+(deftest setf-cdr (setters)
+  (assert-equal '(1 4 5) (eval-string "(let ((x (cons 1 (cons 2 (cons 3 '()))))) (setf (cdr x) '(4 5)) x)"))
+  (assert-equal '((2 10) 4 5) (eval-string "(let ((x (cons (cons 2 (cons 10 '())) (cons 4 (cons 5 '())))))
+                                              (setf (cdr (car x)) '(10)) x)")))
