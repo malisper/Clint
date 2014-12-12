@@ -58,8 +58,12 @@
 
 (defprimitive-macro defun (name args &rest body)
   "Define a procedure."
-  ^`(setf (symbol-function ',name) (lambda ,args ,@body)))
+  ^`(progn ,(when (stringp (car body))
+              `(setf (documentation ',name 'function) ,(car body)))
+           (setf (symbol-function ',name) (lambda ,args ,@body))))
 
 (defprimitive-macro defmacro (name args &rest body)
   "Define a macro."
-  ^`(setf (macro-function ',name) (lambda ,args ,@body)))
+  ^`(progn ,(when (stringp (car body))
+              `(setf (documentation ',name 'function) ,(car body)))
+           (setf (macro-function ',name) (lambda ,args ,@body))))

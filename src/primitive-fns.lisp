@@ -64,6 +64,10 @@
   "Look up the documentation for NAME under TYPE."
   (cl-doc name type))
 
+(defprimitive-fn (setf documentation) (val name type)
+  "Sets the documentation for the thing named by NAME of type TYPE."
+  (setf (cl-doc name type) val))
+
 (defprimitive-fn cons (x y)
   "Return a pair containing the elements X and Y."
   (cons x y))
