@@ -131,6 +131,14 @@
   (with-input-from-string (stream str)
     (cl-eval (cl-read stream) *env* *fenv*)))
 
+(defun cl-load (file)
+  "Evaluates all of the expressions in a file."
+  (with-open-file (in file :direction :input)
+    (let ((g (gensym)))
+      (loop for exp = (cl-read in nil g)
+            until (eq g exp)
+            do (cl-eval exp *env* *fenv*)))))
+
 (defun cl-repl ()
   "A REPL for the interpreter."
   (loop (format t "~&=> ")

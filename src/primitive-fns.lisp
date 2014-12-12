@@ -111,3 +111,7 @@
   "Sets the macro fn for NAME."
   (setf (val name *fenv*) (make-instance 'macro
                             :macro-fn val)))
+
+(defprimitive-fn load (file)
+  "Evaluates every expression in FILE."
+  (cl-load file))
