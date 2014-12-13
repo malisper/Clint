@@ -119,3 +119,23 @@
 (defprimitive-fn load (file)
   "Evaluates every expression in FILE."
   (cl-load file))
+
+(defprimitive-fn evenp (n)
+  "Is this number even?"
+  (evenp n))
+
+(defprimitive-fn oddp (n)
+  "Is this number odd?"
+  (oddp n))
+
+(defprimitive-fn zerop (n)
+  "Is this number zero?"
+  (zerop n))
+
+(defprimitive-fn plusp (n)
+  "Is this number positive?"
+  (plusp n))
+
+(defprimitive-fn minusp (n)
+  "Is this number negative?"
+  (minusp n))
