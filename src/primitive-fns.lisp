@@ -139,3 +139,7 @@
 (defprimitive-fn minusp (n)
   "Is this number negative?"
   (minusp n))
+
+(defprimitive-fn null (x)
+  "Is this the empty list."
+  (or (null x) (eq x ^'nil)))
