@@ -60,6 +60,11 @@
   "Are these two things exact same object?"
   (eq x y))
 
+(defprimitive-fn eql (x y)
+  "Are these things the same object or do they represent the same
+   number?"
+  (eql x y))
+
 (defprimitive-fn documentation (name type)
   "Look up the documentation for NAME under TYPE."
   (cl-doc name type))
@@ -141,5 +146,5 @@
   (minusp n))
 
 (defprimitive-fn null (x)
-  "Is this the empty list."
+  "Is this the empty list?"
   (or (null x) (eq x ^'nil)))

@@ -69,7 +69,7 @@
   (etypecase f
     (prim-fn   (apply (prim-code f) args))
     (lambda-fn (cl-eval (fn-code f)
-                        (extend-env env (fn-args f) args)
+                        (extend-env (fn-env f) (fn-args f) args)
                         fenv))
     (symbol    (cl-apply (val f fenv) args env fenv))))
 
