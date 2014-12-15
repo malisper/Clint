@@ -148,3 +148,25 @@
 (defprimitive-fn null (x)
   "Is this the empty list?"
   (or (null x) (eq x ^'nil)))
+
+;;; The following inequality predicates all have an extra arg outside
+;;; of the rest argument because they cannot accept zero arguments.
+(defprimitive-fn < (arg &rest args)
+  "Are the arguments strictly increasing?"
+  (apply #'< arg args))
+
+(defprimitive-fn > (arg &rest args)
+  "Are the arguments strictly decreasing?"
+  (apply #'< arg args))
+
+(defprimitive-fn <= (arg &rest args)
+  "Are the arguments non-strictly increasing."
+  (apply #'<= arg args))
+
+(defprimitive-fn >= (arg &rest args)
+  "Are the arguments non-strictly decreasing."
+  (apply #'>= arg args))
+
+(defprimitive-fn = (arg &rest args)
+  "Are the arguments numerically equivalent."
+  (apply #'= arg args))
