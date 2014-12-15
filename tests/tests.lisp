@@ -25,7 +25,16 @@
 
 (deftest lambda (special-forms)
   (assert-eql 10 (eval-string "((lambda (x y) (+ x y)) 3 7)"))
-  (assert-eql 20 (eval-string "((lambda (x) (* 4 x)) 5)")))
+  (assert-eql 20 (eval-string "((lambda (x) (* 4 x)) 5)"))
+  (assert-equal '(30 110 60 115)
+      (eval-string "(let* ((acc-gen (lambda (n) (lambda (x) (setf n (+ x n)))))
+                           (a (funcall acc-gen 10))
+                           (b (funcall acc-gen 100)))
+                       (cons (funcall a 20)
+                         (cons (funcall b 10)
+                           (cons (funcall a 30)
+                             (cons (funcall b 5)
+                                '())))))")))
 
 (deftest + (arithmetic)
   (assert-eql 5 (eval-string "(+ 2 3)"))
