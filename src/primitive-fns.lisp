@@ -1,9 +1,9 @@
-;; The primitive fns.
+;; Primitive Clint procedures.
 
 (in-package :clint)
 
 (defmacro defprimitive-fn (name args &body body)
-  "Define a primitive to be put in the interpreter."
+  "Define a Clint procedure whose body is evaluated by the ICL."
   `(progn
      ,(when (stringp (car body))
         `(setf (cl-doc ^',name ^'function) ,(car body)))
@@ -49,7 +49,8 @@
   (cl-find-package name))
 
 (defprimitive-fn intern (&rest args)
-  "Intern a string as a symbol into the given package."
+  "Return a symbol in the given package that has the given name as
+   its name. If no such symbol already exists, a new one is created."
   (apply #'cl-intern args))
 
 (defprimitive-fn make-package (name)
@@ -74,11 +75,11 @@
   (setf (cl-doc name type) val))
 
 (defprimitive-fn cons (x y)
-  "Return a pair containing the elements X and Y."
+  "Returns a cons pair containing the elements X and Y."
   (cons x y))
 
 (defprimitive-fn car (x)
-  "Return the first element of a pair."
+  "Returns the first element of a pair."
   (car x))
 
 (defprimitive-fn (setf car) (val pair)
@@ -86,11 +87,11 @@
   (setf (car pair) val))
 
 (defprimitive-fn cdr (x)
-  "Return the second element of a pair."
+  "Returns the second element of a pair."
   (cdr x))
 
 (defprimitive-fn (setf cdr) (val pair)
-  "Sets the cdr of a pair."
+  "Sets the cdr of a cons pair."
   (setf (cdr pair) val))
 
 (defprimitive-fn rplacd (pair val)
@@ -110,19 +111,20 @@
   (setf (val name *fenv*) val))
 
 (defprimitive-fn macro-function (name)
-  "Returns the macro definition for NAME."
+  "Returns the procedure used for macroexpansion of the macro named by
+   NAME."
   (let ((fn (val name *fenv*)))
     (if (typep fn 'macro)
         fn
         nil)))
 
 (defprimitive-fn (setf macro-function) (val name)
-  "Sets the macro fn for NAME."
+  "Sets the macro-function for NAME."
   (setf (val name *fenv*) (make-instance 'macro
                             :macro-fn val)))
 
 (defprimitive-fn load (file)
-  "Evaluates every expression in FILE."
+  "Evaluates every expression in the given file."
   (cl-load file))
 
 (defprimitive-fn evenp (n)
@@ -147,6 +149,8 @@
 
 (defprimitive-fn null (x)
   "Is this the empty list?"
+  ;; I'm going to have to figure out how to make the empty list and
+  ;; nil act the same in all cases.
   (or (null x) (eq x ^'nil)))
 
 ;;; The following inequality predicates all have an extra arg outside

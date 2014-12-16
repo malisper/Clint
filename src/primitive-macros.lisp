@@ -1,9 +1,9 @@
-;; The primitive macros.
+;; Primitive Clint macros.
 
 (in-package :clint)
 
 (defmacro defprimitive-macro (name args &body body)
-  "Define a macro to be put in the interpreter."
+  "Define a Clint macro whose body is evaluated by the ICL."
   `(progn
      ,(when (stringp (car body))
         `(setf (cl-doc ^',name ^'function) ,(car body)))
@@ -31,6 +31,9 @@
    consequence is evaluated and that value is return as the result of
    the cond."
   (cond ((null clauses) nil)
+        ;; If there is only a single part to a clause, we want to
+        ;; return its value as the result of the cond if it is
+        ;; non-nil.
 	((null (cdar clauses))
 	 (let ((g (make-instance 'cl-symbol
 		    :name (symbol-name (gensym))
@@ -45,7 +48,7 @@
                (cond ,@(cdr clauses))))))
 
 (defprimitive-macro lambda (&rest body)
-  "Define a lambda procedure."
+  "Wraps the lambda procedure with the function special form."
   ^`#'(lambda ,@body))
 
 (defprimitive-macro setf (place val)

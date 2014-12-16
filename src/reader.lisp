@@ -1,13 +1,18 @@
 (in-package :clint)
 
 (defclass cl-readtable ()
-  ((chars    :initarg :chars :accessor readtable-chars    :initform (make-hash-table))
-   (dispatch :initarg :chars :accessor readtable-dispatch :initform (make-hash-table))))
+  ((chars    :initarg :chars :accessor readtable-chars    :initform (make-hash-table)
+             :documentation "A table mapping from the single character reader macros.
+                             to their corresponding procedure.")
+   (dispatch :initarg :chars :accessor readtable-dispatch :initform (make-hash-table)
+             :documentation "A table mapping from the first character of a dispatch
+                             reader macro to the corresponding procedure."))
+  (:documentation "A Clint readtable."))
 
 (setf (global-var ^'*readtable*) (make-instance 'cl-readtable))
 
 (defun cl-set-macro-character (char fn &optional non-terminating (readtable (global-var ^'*readtable*)))
-  "Has the reader call FN whenever CHAR is read."
+  "This makes the reader call FN whenever CHAR is read."
   (declare (ignore non-terminating))
   (setf (gethash char (readtable-chars readtable)) fn)
   t)
@@ -32,7 +37,7 @@
   t)
 
 (defun cl-get-macro-character (char &optional (readtable (global-var ^'*readtable*)))
-  "Returns the macro-character for the given char."
+  "Returns the reader macro that corresponds to CHAR in READTABLE."
   (gethash char (readtable-chars readtable)))
 
 (defun whitespace (char)
@@ -65,7 +70,7 @@
           (:else (vector-push-extend (read-char stream) buffer)))))
 
 (defun string->num/sym (str)
-  "Converts a string to either a number or a cl-symbol."
+  "Converts a string to either a number or a Clint symbol."
   (if (every #'digit-char-p str)
       (parse-integer str)
       (cl-intern (string-upcase str))))
@@ -81,17 +86,18 @@
     (cdr list)))
 
 (defun end-list (stream char)
-  "Signals the end of a list."
+  "This will signal that the end of a list has been reached to 
+   read-list."
   (declare (ignore stream char))
   (throw 'end-of-list nil))
 
 (defun quote-reader (stream char)
-  "Reads in a quote."
+  "Reads in a quoted expression."
   (declare (ignore char))
   ^`(quote ,(cl-read stream)))
 
 (defun sharp-quote-reader (stream char)
-  "Reads in a sharp quote (#')."
+  "Reads in a sharp quoted expression."
   (declare (ignore char))
   ^`#',(cl-read stream))
 
@@ -105,14 +111,14 @@
         finally (return result)))
 
 (defun comment-reader (stream char)
-  "Ignores the rest of the line of input and returns the next thing 
+  "Ignores the rest of the line of input and returns the next form
    after that."
   (declare (ignore char))
   (read-line stream)
   (cl-read stream))
 
 (defun array-reader (stream char)
-  "Reads in an array."
+  "Reads in an array. Currently only supports one-dimensional arrays."
   (declare (ignore char))
   (apply #'vector (read-list stream #\()))
 
@@ -127,7 +133,7 @@
 (cl-set-dispatch-macro-character #\# #\( 'array-reader)
 
 (defun eval-string (str)
-  "Evaluate an expression from the given string."
+  "Read an expression from STR and evaluate it."
   (with-input-from-string (stream str)
     (cl-eval (cl-read stream) *env* *fenv*)))
 
@@ -140,6 +146,6 @@
             do (cl-eval exp *env* *fenv*)))))
 
 (defun repl ()
-  "A REPL for the interpreter."
+  "A REPL for Clint."
   (loop (format t "~&=> ")
         (format t "~&~A" (cl-eval (cl-read) *env* *fenv*))))
