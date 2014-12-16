@@ -25,7 +25,7 @@
            (let ((x (cl-function (car exp) env fenv)))
              (if (typep x 'macro)
                  (cl-eval (cl-apply (macro-fn x) (cdr exp)) env fenv)
-                 (cl-apply (cl-function (car exp) env fenv)
+                 (cl-apply x
                            (cl-eval-all (cdr exp) env fenv)
                            env
                            fenv)))))))

@@ -161,3 +161,35 @@
   (assert-false (eval-string "(= 1 1 2)"))
   (assert-false (eval-string "(= 1 2 1)"))
   (assert-false (eval-string "(= 2 1 1)")))
+
+(deftest evenp (predicates)
+  (assert-true  (eval-string "(evenp 2)"))
+  (assert-true  (eval-string "(evenp 4)"))
+  (assert-false (eval-string "(evenp 3)"))
+  (assert-false (eval-string "(evenp 5)")))
+
+(deftest oddp (predicates)
+  (assert-true (eval-string "(oddp 3)"))
+  (assert-true (eval-string "(oddp 5)"))
+  (assert-false  (eval-string "(oddp 2)"))
+  (assert-false  (eval-string "(oddp 4)")))
+
+(deftest zerop (predicates)
+  (assert-true  (eval-string "(zerop 0)"))
+  (assert-false (eval-string "(zerop (- 1))"))
+  (assert-false (eval-string "(zerop 1)")))
+
+(deftest plusp (predicates)
+  (assert-true  (eval-string "(plusp 1)"))
+  (assert-false (eval-string "(plusp 0)"))
+  (assert-false (eval-string "(plusp (- 1))")))
+
+(deftest minusp (predicates)
+  (assert-true  (eval-string "(minusp (- 1))"))
+  (assert-false (eval-string "(minusp 0)"))
+  (assert-false (eval-string "(minusp 1)")))
+
+(deftest null (predicates)
+  (assert-true  (eval-string "(null '())"))
+  (assert-false (eval-string "(null 1)"))
+  (assert-false (eval-string "(null 'x)")))

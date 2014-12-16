@@ -151,7 +151,7 @@
   "Is this the empty list?"
   ;; I'm going to have to figure out how to make the empty list and
   ;; nil act the same in all cases.
-  (or (null x) (eq x ^'nil)))
+  (null x))
 
 ;;; The following inequality predicates all have an extra arg outside
 ;;; of the rest argument because they cannot accept zero arguments.
