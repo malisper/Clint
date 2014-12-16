@@ -161,7 +161,7 @@
 
 (defprimitive-fn > (arg &rest args)
   "Are the arguments strictly decreasing?"
-  (apply #'< arg args))
+  (apply #'> arg args))
 
 (defprimitive-fn <= (arg &rest args)
   "Are the arguments non-strictly increasing."
