@@ -28,3 +28,6 @@ Evaluating Code: There are currently two wasy to evaluate code with
 Clint. There is the procedure "repl", which will start a repl. And
 there is eval-string, which takes a string of the code to be evaluated
 as an argument.
+
+Warnings: Currently the Clint symbol "nil" and the empty list are not
+the same thing. Always use the empty list for now.

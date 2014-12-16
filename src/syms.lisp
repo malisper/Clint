@@ -4,7 +4,7 @@
 
 (defclass cl-symbol ()
   ((name    :initarg :name :accessor cl-symbol-name
-            :documentation "The name of this symbol")
+            :documentation "The name of this symbol.")
    (package :initarg :package :accessor cl-symbol-package
             :documentation "The package this symbol belongs to.")))
 
