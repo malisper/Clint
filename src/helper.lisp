@@ -1,3 +1,5 @@
+;;;; These are some helper macros/procedures.
+
 (in-package :clint)
 
 (defmacro switchlet (var exp &rest clauses)
@@ -12,8 +14,8 @@
               (recur clauses))))
 
 (defmacro switch (exp &rest clauses)
-  "Similar to case but the expressions being compared against are
-   evaluated and has slightley different syntax. The syntax is
+  "Similar to case, but with slightley different syntax and the
+   expressions being compared against are evaluated. The syntax is:
 
    (switch <exp-1> <consequence-1> ... <consequence-n> [<else-exp>])"
   `(switchlet ,(gensym) ,exp ,@clauses))
