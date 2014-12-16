@@ -8,7 +8,7 @@ This is a Common Lisp interpreter that I am piecing together.
 Definitions: Clint refers to the interpreter level Common Lisp while
 ICL refers to the implementation Common Lisp.
 
-Conventions: Anything whose name begins with cl, is defined at the ICL
+Conventions: Anything whose name begins with cl: is defined at the ICL
 level, is equivalent to the ICL's version without the cl prepended,
 but instead acts at the Clint level. For example, cl-intern is an ICL
 procedure, but will intern a symbol into Clint instead of the ICL.
