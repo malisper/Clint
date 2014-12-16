@@ -8,10 +8,15 @@ This is a Common Lisp interpreter that I am piecing together.
 Definitions: Clint refers to the interpreter level Common Lisp while
 ICL refers to the implementation Common Lisp.
 
-Conventions: Anything whose name begins with cl: is defined at the ICL
+Conventions: Things whose name begins with cl: is defined at the ICL
 level, is equivalent to the ICL's version without the cl prepended,
 but instead acts at the Clint level. For example, cl-intern is an ICL
 procedure, but will intern a symbol into Clint instead of the ICL.
+There are a few exceptions. The procedure cl-boundp acts a little
+different than the ICL procedure boundp. The procedures cl-eval-all
+and cl-eval-if do not have ICL equivalents. The procedure cl-doc is
+equivalent to the ICL procedure, documentation, I just truncated the
+name.
 
 Primitives: Special forms are defined as part of cl-eval, the core of
 the interpreter, in the interp.lisp file. All of the primitive
