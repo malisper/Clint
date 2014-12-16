@@ -139,7 +139,7 @@
             until (eq g exp)
             do (cl-eval exp *env* *fenv*)))))
 
-(defun cl-repl ()
+(defun repl ()
   "A REPL for the interpreter."
   (loop (format t "~&=> ")
         (format t "~&~A" (cl-eval (cl-read) *env* *fenv*))))

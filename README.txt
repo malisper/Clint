@@ -23,3 +23,8 @@ higher-order-fns.lisp file. Unfortunately I have not yet been able to
 figure out how to have it load with the rest of Clint (all of the
 primitives will be loaded). To load it manually, use either cl-load
 in the ICL or load from within Clint.
+
+Evaluating Code: There are currently two wasy to evaluate code with
+Clint. There is the procedure "repl", which will start a repl. And
+there is eval-string, which takes a string of the code to be evaluated
+as an argument.
