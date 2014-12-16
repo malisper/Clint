@@ -68,7 +68,7 @@
   "Converts a string to either a number or a cl-symbol."
   (if (every #'digit-char-p str)
       (parse-integer str)
-      (cl-intern str)))
+      (cl-intern (string-upcase str))))
 
 (defun read-list (stream char)
   "Reads in a list."
