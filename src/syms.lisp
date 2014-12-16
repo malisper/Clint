@@ -1,12 +1,14 @@
-;; The implementation for symbols.
+;; The implementation for Clint symbols.
 
 (in-package :clint)
 
 (defclass cl-symbol ()
-  ((name    :initarg :name    :accessor cl-symbol-name)
-   (package :initarg :package :accessor cl-symbol-package)))
+  ((name    :initarg :name :accessor cl-symbol-name
+            :documentation "The name of this symbol")
+   (package :initarg :package :accessor cl-symbol-package
+            :documentation "The package this symbol belongs to.")))
 
 (defmethod print-object ((sym cl-symbol) s)
-  "Print a cl-symbol."
+  "Prints the name of the Clint symbol."
   ;; Printing of the package is handled in interp.
   (format s "~A" (cl-symbol-name sym)))
