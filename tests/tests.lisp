@@ -169,10 +169,10 @@
   (assert-false (eval-string "(evenp 5)")))
 
 (deftest oddp (predicates)
-  (assert-true (eval-string "(oddp 3)"))
-  (assert-true (eval-string "(oddp 5)"))
-  (assert-false  (eval-string "(oddp 2)"))
-  (assert-false  (eval-string "(oddp 4)")))
+  (assert-true  (eval-string "(oddp 3)"))
+  (assert-true  (eval-string "(oddp 5)"))
+  (assert-false (eval-string "(oddp 2)"))
+  (assert-false (eval-string "(oddp 4)")))
 
 (deftest zerop (predicates)
   (assert-true  (eval-string "(zerop 0)"))
