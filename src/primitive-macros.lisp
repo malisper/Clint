@@ -70,3 +70,17 @@
   ^`(progn ,(when (stringp (car body))
               `(setf (documentation ',name 'function) ,(car body)))
            (setf (macro-function ',name) (lambda ,args ,@body))))
+
+(defprimitive-macro and (&rest exps)
+  "Evaluate each expression lazily. If any of them returns nil,
+   the result is nil, otherwise return the value of the last
+   expression."
+  (cond ((null exps) ^'t)
+        ((null (cdr exps)) (car exps))
+        (:else ^`(if ,(car exps) (and ,@(cdr exps))))))
+
+(defprimitive-macro or (&rest exps)
+  "Evaluate each expression lazily. If any of them returns non-nil
+   return its value, otherwise if none of them return non-nil, return
+   nil."
+  ^`(cond ,@(mapcar #'list exps)))
