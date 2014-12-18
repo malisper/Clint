@@ -147,5 +147,8 @@
 
 (defun repl ()
   "A REPL for Clint."
-  (loop (format t "~&=> ")
-        (format t "~&~A" (cl-eval (cl-read) *env* *fenv*))))
+  (catch 'exit ;; For exit to throw to exit the Clint repl.
+    (loop
+      (format t "~&=> ")
+      (with-simple-restart (cl-repl "Return to Clint's repl.")
+        (format t "~&~A" (cl-eval (cl-read) *env* *fenv*))))))

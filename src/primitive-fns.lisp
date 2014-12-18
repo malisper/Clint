@@ -184,3 +184,7 @@
 (defprimitive-fn = (arg &rest args)
   "Are the arguments numerically equivalent."
   (apply #'= arg args))
+
+(defprimitive-fn exit ()
+  "Exit the Clint interpreter."
+  (throw 'exit nil))
