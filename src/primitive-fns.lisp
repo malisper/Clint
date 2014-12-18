@@ -147,6 +147,12 @@
   "Is this number negative?"
   (minusp n))
 
+;; There is currently a problem with all of the predicates. They will
+;; return the ICL symbol t instead of the Clint symbol t. As to what
+;; effects this ultimately has, I am not sure. Everything should be
+;; fine as long as the return value for a predicate is not compared
+;; directly to the Clint symbol t.
+
 (defprimitive-fn null (x)
   "Is this the empty list?"
   ;; I'm going to have to figure out how to make the empty list and
