@@ -153,6 +153,10 @@
   ;; nil act the same in all cases.
   (null x))
 
+(defprimitive-fn not (x)
+  "If the argument is non-nil, return nil. If it is nil, return t."
+  (not x))
+
 ;;; The following inequality predicates all have an extra arg outside
 ;;; of the rest argument because they cannot accept zero arguments.
 (defprimitive-fn < (arg &rest args)
