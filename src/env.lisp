@@ -60,11 +60,3 @@
 (defun (setf global-fn) (val name)
   "Sets the value of NAME to VAL in the global function environment."
   (setf (val name *fenv*) val))
-
-;; Define some global constants.
-(setf (global-var ^'t) ^'t)
-
-;; There are some problems with making the Clint symbol nil and the
-;; empty list the same thing.
-
-;; (setf (global-var ^'nil) ^'nil)

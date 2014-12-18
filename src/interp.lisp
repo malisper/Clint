@@ -121,3 +121,12 @@
     (with-slots (package) sym
       (unless (eq package current-package)
         (format s "~A::" (cl-package-name package))))))
+
+;; Define some global constants.
+(setf (global-var ^'t) ^'t)
+
+;; There are some problems with making the Clint symbol nil and the
+;; empty list the same thing.
+
+;; (setf (global-var ^'nil) ^'nil)
+
