@@ -10,7 +10,7 @@
 
 (defmethod print-object ((sym cl-symbol) s)
   "Prints the name of the Clint symbol."
-  ;; Printing of the package is handled in interp.
+  ;; Printing of the package is handled in intern.
   (format s "~A" (cl-symbol-name sym)))
 
 (defun cl-make-symbol (name)
