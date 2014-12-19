@@ -104,11 +104,11 @@
 
 (defprimitive-fn symbol-function (name)
   "Returns the global procedure named by NAME."
-  (val name *fenv*))
+  (global-fn name))
 
 (defprimitive-fn (setf symbol-function) (val name)
   "Set the global procedure named by NAME to VAL."
-  (setf (val name *fenv*) val))
+  (setf (global-fn name) val))
 
 (defprimitive-fn macro-function (name)
   "Returns the procedure used for macroexpansion of the macro named by

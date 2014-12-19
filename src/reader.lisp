@@ -9,15 +9,16 @@
                              reader macro to the corresponding procedure."))
   (:documentation "A Clint readtable."))
 
-(setf (global-var ^'*readtable*) (make-instance 'cl-readtable))
+(cl-defparameter *readtable* *cl-readtable* (make-instance 'cl-readtable)
+  "The current readtable.")
 
-(defun cl-set-macro-character (char fn &optional non-terminating (readtable (global-var ^'*readtable*)))
+(defun cl-set-macro-character (char fn &optional non-terminating (readtable *cl-readtable*))
   "This makes the reader call FN whenever CHAR is read."
   (declare (ignore non-terminating))
   (setf (gethash char (readtable-chars readtable)) fn)
   t)
 
-(defun cl-make-dispatch-macro-character (char &optional non-terminating (readtable (global-var ^'*readtable*)))
+(defun cl-make-dispatch-macro-character (char &optional non-terminating (readtable *cl-readtable*))
   "Create a dispatch-macro-character whose first character is CHAR."
   (declare (ignore non-terminating))
   (setf (gethash char (readtable-dispatch readtable)) (make-hash-table))
@@ -31,12 +32,12 @@
         (funcall fn stream next)))
     readtable))
 
-(defun cl-set-dispatch-macro-character (char subchar fn &optional (readtable (global-var ^'*readtable*)))
+(defun cl-set-dispatch-macro-character (char subchar fn &optional (readtable *cl-readtable*))
   "Whenever the reader encounters CHAR followed by SUBCHAR, call FN."
   (setf (gethash subchar (gethash char (readtable-dispatch readtable))) fn)
   t)
 
-(defun cl-get-macro-character (char &optional (readtable (global-var ^'*readtable*)))
+(defun cl-get-macro-character (char &optional (readtable *cl-readtable*))
   "Returns the reader macro that corresponds to CHAR in READTABLE."
   (gethash char (readtable-chars readtable)))
 

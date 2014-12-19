@@ -11,6 +11,7 @@
                              (:file "docs")
                              (:file "env")
                              (:file "syms")
+                             (:file "vars")
                              (:file "packages")
                              (:file "fns")
                              (:file "interp")

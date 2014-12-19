@@ -2,15 +2,6 @@
 
 (in-package :clint)
 
-;; A reader macro to make typing in Clint symbols easier. It will take
-;; the result of the form that comes after it (as a tree) and convert
-;; all of the symbols in it to Clint symbols.
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (set-macro-character #\^
-    (lambda (stream char)
-      (declare (ignore char))
-      `(symbols->cl-symbols ,(read stream t nil t) "CL"))))
-
 (defun cl-eval (exp env fenv)
   "Evaluates EXP in ENV."
   (cond ((typep exp 'cl-symbol) (val exp env))
@@ -78,6 +69,9 @@
                         fenv))
     (symbol    (cl-apply (val f fenv) args env fenv))))
 
+;; The procedure global-var needs to be used here because
+;; cl-defparameter using the ^ reader macro which in turn uses
+;; symbols->cl-symbols.
 (defun symbols->cl-symbols (code &optional (package (global-var ^'*package*)))
   "Converts all symbols in the tree CODE, into Clint symbols. These
    symbols will belong to PACKAGE which defaults to the current value
@@ -99,7 +93,8 @@
         (cl-intern (subseq str (+ sym-pos 1))
                    (subseq str 0 pack-pos)))))
 
-;; This creates Clint's CL package if it does not already exist.
+;; This creates Clint's CL package if it does not already exist. This
+;; line is early one because it is needed for cl-find-package.
 (or (cl-find-package "CL") (make-instance 'cl-package :name "CL"))
 
 (defun cl-intern (name &optional (designator (global-var ^'*package*)))
@@ -112,12 +107,14 @@
           (setf (gethash name syms)
                 (make-instance 'cl-symbol :name name :package package))))))
 
-(setf (global-var ^'*package*) (cl-find-package "CL"))
+(cl-defparameter *package* *cl-package*
+  (or (cl-find-package "CL") (make-instance 'cl-package :name "CL"))
+  "The current clint-package.")
 
 (defmethod print-object :before ((sym cl-symbol) s)
   "When printing a Clint symbol, if the symbols' package is not the
    same as the current package, prepend the package name to it."
-  (let ((current-package (global-var ^'*package*)))
+  (let ((current-package *cl-package*))
     (with-slots (package) sym
       (if package
           (unless (eq package current-package)
@@ -125,10 +122,11 @@
           (format s "#:")))))
 
 ;; Define some global constants.
-(setf (global-var ^'t) ^'t)
+(cl-defparameter t *cl-t* ^'t "The truth value.")
 
 ;; There are some problems with making the Clint symbol nil and the
 ;; empty list the same thing.
 
-;; (setf (global-var ^'nil) ^'nil)
+;; (cl-defparameter nil *cl-nil* '() "The value of false and the empty list")
+
 
