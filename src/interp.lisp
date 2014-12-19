@@ -119,8 +119,10 @@
    same as the current package, prepend the package name to it."
   (let ((current-package (global-var ^'*package*)))
     (with-slots (package) sym
-      (unless (eq package current-package)
-        (format s "~A::" (cl-package-name package))))))
+      (if package
+          (unless (eq package current-package)
+            (format s "~A::" (cl-package-name package)))
+          (format s "#:")))))
 
 ;; Define some global constants.
 (setf (global-var ^'t) ^'t)

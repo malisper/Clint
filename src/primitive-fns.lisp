@@ -188,3 +188,7 @@
 (defprimitive-fn exit ()
   "Exit the Clint interpreter."
   (throw 'exit nil))
+
+(defprimitive-fn make-symbol (name)
+  "Create a new symbol with the given name."
+  (cl-make-symbol name))
