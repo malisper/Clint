@@ -3,8 +3,7 @@
 
 (in-package :clint)
 
-(cl-defparameter *package* cl-*package*
-  (or (cl-find-package "CL") (make-instance 'cl-package :name "CL"))
+(cl-defparameter *package* cl-*package* (cl-find-package "CL")
   "The current clint-package.")
 
 (cl-defparameter *gensym-counter* cl-*gensym-counter* 0
