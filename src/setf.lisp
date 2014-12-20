@@ -14,7 +14,7 @@
    evaluate to do the setting once the given symbol has the desired
    value, and (5) an expression whose result will be the current value
    of the place."
-  (let ((result ^(gensym)))
+  (let ((result (cl-gensym)))
     (if (typep form 'cl-symbol)
         (values '() '() `(,result) `(setq ,form ,result) form)
         (apply (gethash (car form) *setf-expanders*
