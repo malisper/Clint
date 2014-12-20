@@ -35,8 +35,7 @@
         ;; return its value as the result of the cond if it is
         ;; non-nil.
 	((null (cdar clauses))
-	 (let ((g (make-instance 'cl-symbol
-		    :name (symbol-name (gensym)))))
+	 (let ((g (cl-gensym)))
 	   ^`(let ((,g ,(caar clauses)))
                (if ,g
                    ,g
