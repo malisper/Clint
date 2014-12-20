@@ -11,16 +11,6 @@
       (declare (ignore char))
       `(symbols->cl-symbols ,(read stream t nil t) "CL"))))
 
-;; This needs to be here because it uses the ^ reader macro which in
-;; turn depends on symbols->cl-symbols.
-(defmacro cl-defparameter (name icl-name val &optional doc)
-  "Define a Clint variable. A symbol macro for icl-name will be
-   defined which will provide access to the Clint variable."
-  `(progn ,(when doc
-             `(setf (cl-doc ^',name ^'variable) ,doc))
-          (setf (val ^',name *env*) ,val)
-          (define-symbol-macro ,icl-name (val ^',name *env*))))
-
 ;; The procedure global-var needs to be used here because
 ;; cl-defparameter using the ^ reader macro which in turn uses
 ;; symbols->cl-symbols.
@@ -59,14 +49,10 @@
           (setf (gethash name syms)
                 (make-instance 'cl-symbol :name name :package package))))))
 
-(cl-defparameter *package* *cl-package*
-  (or (cl-find-package "CL") (make-instance 'cl-package :name "CL"))
-  "The current clint-package.")
-
 (defmethod print-object :before ((sym cl-symbol) s)
   "When printing a Clint symbol, if the symbols' package is not the
    same as the current package, prepend the package name to it."
-  (let ((current-package *cl-package*))
+  (let ((current-package (global-var ^'*package*)))
     (with-slots (package) sym
       (if package
           (unless (eq package current-package)

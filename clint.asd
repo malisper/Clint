@@ -16,6 +16,7 @@
                              (:file "fns")
                              (:file "interpreter")
                              (:file "setf")
+			     (:file "defparameter")
 			     (:file "vars")
 			     (:file "misc")
                              (:file "primitive-fns")
