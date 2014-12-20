@@ -16,11 +16,11 @@
    of the place."
   (let ((result (cl-gensym)))
     (if (typep form 'cl-symbol)
-        (values '() '() `(,result) `(setq ,form ,result) form)
+        (values '() '() ^`(,result) ^`(setq ,form ,result) form)
         (apply (gethash (car form) *setf-expanders*
                  (lambda (&rest args)
-                   (let ((result (gensym))
-                         (gensyms (loop for x in args collect (gensym))))
+                   (let ((result (cl-gensym))
+                         (gensyms (loop for x in args collect (cl-gensym))))
                        (values gensyms
                                args
                                ^`(,result)
@@ -36,7 +36,7 @@
 
 (defmacro cl-define-modify-macro (name lambda-list fn)
   "Define a modify macro."
-  (let ((val (gensym)))
+  (let ((val (cl-gensym)))
     `(defprimitive-macro ,name (,val ,@lambda-list)
        (multiple-value-bind (temps vals stores store-form access-form)
                             (cl-get-setf-expansion ,val)
@@ -47,7 +47,7 @@
 (defmacro cl-defsetf (access update)
   "Defines UPDATE to be called when using (setf (ACCESS ...) ...)."
   `(cl-define-setf-expander ,access (&rest args)
-     (let ((gensyms (loop for a in args collect (gensym))) (result (gensym)))
+     (let ((gensyms (loop for a in args collect (cl-gensym))) (result (cl-gensym)))
        (values gensyms
                args
                ^`(,result)
