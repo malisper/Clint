@@ -40,6 +40,10 @@
   "Evals a list as code."
   (cl-eval exp *env* *fenv*))
 
+(defprimitive-fn read (&rest args)
+  "Read in an expression."
+  (apply #'cl-read args))
+
 (defprimitive-fn package-name (pack)
   "Look up the name of the given package."
   (cl-package-name pack))
@@ -196,3 +200,11 @@
 (defprimitive-fn gensym (&optional (name "G"))
   "Create a new symbol that is not eq with any other symbol."
   (cl-gensym name))
+
+(defprimitive-fn set-macro-character (char fn &rest args)
+  "Set the reader macro function for CHAR to FN."
+  (apply #'cl-set-macro-character
+	 char
+	 (lambda (&rest args)
+	   (cl-apply fn args *env* *fenv*))
+	 args))
