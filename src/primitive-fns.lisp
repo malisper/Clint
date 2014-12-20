@@ -192,3 +192,7 @@
 (defprimitive-fn make-symbol (name)
   "Create a new symbol with the given name."
   (cl-make-symbol name))
+
+(defprimitive-fn gensym (&optional (name "G"))
+  "Create a new symbol that is not eq with any other symbol."
+  (cl-gensym name))

@@ -36,8 +36,7 @@
         ;; non-nil.
 	((null (cdar clauses))
 	 (let ((g (make-instance 'cl-symbol
-		    :name (symbol-name (gensym))
-		    :package nil)))
+		    :name (symbol-name (gensym)))))
 	   ^`(let ((,g ,(caar clauses)))
                (if ,g
                    ,g

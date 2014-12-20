@@ -16,6 +16,8 @@
                              (:file "fns")
                              (:file "interpreter")
                              (:file "setf")
+			     (:file "vars")
+			     (:file "misc")
                              (:file "primitive-fns")
                              (:file "primitive-macros")
                              (:file "reader")))))

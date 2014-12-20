@@ -68,13 +68,3 @@
                         (extend-env (fn-env f) (fn-args f) args)
                         fenv))
     (symbol    (cl-apply (val f fenv) args env fenv))))
-
-;; Define some global constants.
-(cl-defparameter t *cl-t* ^'t "The truth value.")
-
-;; There are some problems with making the Clint symbol nil and the
-;; empty list the same thing.
-
-;; (cl-defparameter nil *cl-nil* '() "The value of false and the empty list")
-
-

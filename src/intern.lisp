@@ -11,6 +11,8 @@
       (declare (ignore char))
       `(symbols->cl-symbols ,(read stream t nil t) "CL"))))
 
+;; This needs to be here because it uses the ^ reader macro which in
+;; turn depends on symbols->cl-symbols.
 (defmacro cl-defparameter (name icl-name val &optional doc)
   "Define a Clint variable. A symbol macro for icl-name will be
    defined which will provide access to the Clint variable."
