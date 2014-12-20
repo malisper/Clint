@@ -67,4 +67,4 @@
     (lambda-fn (cl-eval (fn-code f)
                         (extend-env (fn-env f) (fn-args f) args)
                         fenv))
-    (symbol    (cl-apply (val f fenv) args env fenv))))
+    (cl-symbol (cl-apply (val f fenv) args env fenv))))

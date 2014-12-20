@@ -65,13 +65,15 @@
 (deftest funcall (appliers)
   (assert-eql 8 (eval-string "(funcall (lambda (x y) (+ x y 5)) 1 2)"))
   (assert-eql 15 (eval-string "(funcall (lambda (x) (+ x 5)) 10)"))
-  (assert-eql 15 (eval-string "(funcall #'+ 1 2 3 4 5)")))
+  (assert-eql 15 (eval-string "(funcall #'+ 1 2 3 4 5)"))
+  (assert-eql 15 (eval-string "(funcall '+  1 2 3 4 5)")))
 
 (deftest apply (appliers)
   (assert-eql 8 (eval-string "(apply (lambda (x y) (+ x y 5)) '(1 2))"))
   (assert-eql 120 (eval-string "(apply (lambda (w x y z) (* w x y z))
                                        2 3 '(4 5))"))
-  (assert-eql 15 (eval-string "(apply #'+ '(1 2 3 4 5))")))
+  (assert-eql 15 (eval-string "(apply #'+ '(1 2 3 4 5))"))
+  (assert-eql 15 (eval-string "(apply '+  '(1 2 3 4 5))")))
 
 (deftest eval (appliers)
   (assert-eql 8 (eval-string "(eval '(+ 3 5))"))
