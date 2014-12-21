@@ -20,3 +20,21 @@
 (defun find (x xs)
   "Returns the first element of XS that is eql with X."
   (car (member x xs)))
+
+(defun maplist (f xs)
+  "Map a procedure over all of the tails of a list. A list of all of
+   the results is returned."
+  (if (null xs)
+      '()
+      (cons (funcall f xs) (maplist f (cdr xs)))))
+
+(defun mapcar (f xs)
+  "Map a procedure over all of the elements of a list. Return a list
+   of the results is returned."
+  (maplist (lambda (x) (funcall f (car x))) xs))
+
+(defun mapc (f xs)
+  "Apply a procedure to every element in a list. The original
+   list is returned."
+  (mapcar f xs)
+  xs)
