@@ -208,3 +208,17 @@
 	 (lambda (&rest args)
 	   (cl-apply fn args *env* *fenv*))
 	 args))
+
+(defprimitive-fn make-dispatch-macro-character (&rest args)
+  "Create a dispatch-macro-character using the given char."
+  (apply #'cl-make-dispatch-macro-character args))
+
+(defprimitive-fn set-dispatch-macro-character (char subchar fn &rest args)
+  "Whenever the first two arguments (which are chars) are read
+   together, call the third argument which should be a procedure."
+  (apply #'cl-set-dispatch-macro-character
+	 char
+	 subchar
+	 (lambda (&rest args)
+	   (cl-apply fn args))
+	 args))
