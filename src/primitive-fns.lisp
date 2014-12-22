@@ -2,15 +2,6 @@
 
 (in-package :clint)
 
-(defmacro defprimitive-fn (name args &body body)
-  "Define a Clint procedure whose body is evaluated by the ICL."
-  `(progn
-     ,(when (stringp (car body))
-        `(setf (cl-doc ^',name ^'function) ,(car body)))
-     (setf (global-fn ^',name)
-           (make-instance 'prim-fn
-             :prim-code (lambda ,args ,@body)))))
-
 (defprimitive-fn + (&rest args)
   "Sums all of the arguments."
   (apply #'+ args))
