@@ -12,7 +12,3 @@
   "Prints the name of the Clint symbol."
   ;; Printing of the package is handled in intern.
   (format s "~A" (cl-symbol-name sym)))
-
-(defun cl-make-symbol (name)
-  "Create a Clint symbol with the given name. It is uninterned."
-  (make-instance 'cl-symbol :name name))

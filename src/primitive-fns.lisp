@@ -40,10 +40,6 @@
   "Evals a list as code."
   (cl-eval exp *env* *fenv*))
 
-(defprimitive-fn read (&rest args)
-  "Read in an expression."
-  (apply #'cl-read args))
-
 (defprimitive-fn package-name (pack)
   "Look up the name of the given package."
   (cl-package-name pack))
@@ -127,10 +123,6 @@
   (setf (val name *fenv*) (make-instance 'macro
                             :macro-fn val)))
 
-(defprimitive-fn load (file)
-  "Evaluates every expression in the given file."
-  (cl-load file))
-
 (defprimitive-fn evenp (n)
   "Is this number even?"
   (evenp n))
@@ -193,14 +185,6 @@
   "Exit the Clint interpreter."
   (throw 'exit nil))
 
-(defprimitive-fn make-symbol (name)
-  "Create a new symbol with the given name."
-  (cl-make-symbol name))
-
-(defprimitive-fn gensym (&optional (name "G"))
-  "Create a new symbol that is not eq with any other symbol."
-  (cl-gensym name))
-
 (defprimitive-fn set-macro-character (char fn &rest args)
   "Set the reader macro function for CHAR to FN."
   (apply #'cl-set-macro-character
@@ -208,10 +192,6 @@
 	 (lambda (&rest args)
 	   (cl-apply fn args *env* *fenv*))
 	 args))
-
-(defprimitive-fn make-dispatch-macro-character (&rest args)
-  "Create a dispatch-macro-character using the given char."
-  (apply #'cl-make-dispatch-macro-character args))
 
 (defprimitive-fn set-dispatch-macro-character (char subchar fn &rest args)
   "Whenever the first two arguments (which are chars) are read

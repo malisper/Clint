@@ -18,7 +18,8 @@
   (setf (gethash char (readtable-chars readtable)) fn)
   t)
 
-(defun cl-make-dispatch-macro-character (char &optional non-terminating (readtable cl-*readtable*))
+(defun-cl make-dispatch-macro-character cl-make-dispatch-macro-character
+    (char &optional non-terminating (readtable cl-*readtable*))
   "Create a dispatch-macro-character whose first character is CHAR."
   (declare (ignore non-terminating))
   (setf (gethash char (readtable-dispatch readtable)) (make-hash-table))
@@ -49,7 +50,7 @@
   "Returns an adjustable string."
   (make-array 10 :element-type 'character :adjustable t :fill-pointer 0))
 
-(defun cl-read (&optional (stream *standard-input*) eof-error eof-val recur-p)
+(defun-cl read cl-read (&optional (stream *standard-input*) eof-error eof-val recur-p)
   "Reads an expression from STREAM."
   (declare (ignore recur-p))
   (loop with buffer = (adjustable-string)
@@ -144,7 +145,7 @@
   (with-input-from-string (stream str)
     (cl-eval (cl-read stream) *env* *fenv*)))
 
-(defun cl-load (file)
+(defun-cl load cl-load (file)
   "Evaluates all of the expressions in a file."
   (with-open-file (in file :direction :input)
     (let ((g (gensym)))

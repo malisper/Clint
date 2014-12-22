@@ -2,16 +2,6 @@
 
 (in-package :clint)
 
-(defmacro defprimitive-macro (name args &body body)
-  "Define a Clint macro whose body is evaluated by the ICL."
-  `(progn
-     ,(when (stringp (car body))
-        `(setf (cl-doc ^',name ^'function) ,(car body)))
-     (setf (global-fn ^',name)
-           (make-instance 'macro
-             :macro-fn (make-instance 'prim-fn
-                         :prim-code (lambda ,args ,@body))))))
-
 (defprimitive-macro let (bindings &rest exps)
   "The syntax is (let ((var val) ...) body). All of the variables
    will be bound to the respective values."
