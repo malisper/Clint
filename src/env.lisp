@@ -7,11 +7,6 @@
 (defvar *env*  (list '()) "The global variable environment.")
 (defvar *fenv* (list '()) "The global function environment.")
 
-(defun extend-env (env args vals)
-  "Extend a given environment. This works for both the variable
-   environment and function environment."
-  (cons (mapcar #'list args vals) env))
-
 (defun cl-boundp (var env)
   "Is this variable bound in the given environment? If it is return
    the binding as a list containing VAR and its value. This is a

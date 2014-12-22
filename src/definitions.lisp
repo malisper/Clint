@@ -4,10 +4,10 @@
   "Define a Clint procedure whose body is evaluated by the ICL."
   `(progn
      ,(when (stringp (car body))
-	    `(setf (cl-doc ^',name ^'function) ,(car body)))
+	`(setf (cl-doc ^',name ^'function) ,(car body)))
      (setf (global-fn ^',name)
            (make-instance 'prim-fn
-			  :prim-code (lambda ,args ,@body)))))
+	     :prim-code (lambda ,args ,@body)))))
 
 (defmacro defprimitive-macro (name args &body body)
   "Define a Clint macro whose body is evaluated by the ICL."

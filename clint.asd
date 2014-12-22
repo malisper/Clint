@@ -14,6 +14,7 @@
                              (:file "packages")
                              (:file "intern")
 			     (:file "fns")
+			     (:file "arguments")
                              (:file "interpreter")
 			     (:file "defparameter")
 			     (:file "vars")
