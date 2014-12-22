@@ -25,4 +25,6 @@
   `(progn (defun ,icl-name ,args ,@body)
 	  ,(let ((g (gensym)))
 	     `(defprimitive-fn ,name (&rest ,g)
+		,(when (stringp (car body))
+		   (car body))
 		(apply #',icl-name ,g)))))
