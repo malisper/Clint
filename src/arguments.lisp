@@ -11,7 +11,7 @@
 
 (defgeneric bind (args vals kind)
   (:documentation "Bind the parameters of type KIND (optional, rest,
-                   etc,) to the given values."))
+                   etc) to the given values."))
 
 (defmethod bind (args vals (kind (eql ^'regular)))
   "Bind regular keyword arguments."
