@@ -47,6 +47,26 @@
     ^`(let* (,@(mapcar #'list temps vals) (,(car stores) ,val))
         ,store-form)))
 
+(defprimitive-macro push (val place)
+  "Set PLACE to be a list whose car is VAL and whose cdr is the
+   previous value of PLACE."
+  (multiple-value-bind (temps vals stores store-form access-form)
+                       (cl-get-setf-expansion place)
+    ^`(let* (,@(mapcar #'list temps vals)
+	     (,(car stores) (cons ,val ,access-form)))
+	,store-form)))
+
+(defprimitive-macro pop (place)
+  "Sets PlACE to be the cdr of PLACE and return the first element."
+  (multiple-value-bind (temps vals stores store-fun access-form)
+                       (cl-get-setf-expansion place)
+    (let ((val (gensym)))
+      ^`(let* (,@(mapcar #'list temps vals)
+	       (,val ,access-form)
+	       (,(car stores) (cdr ,val)))
+	  ,store-fun
+	  (car ,val)))))
+
 (defprimitive-macro defun (name args &rest body)
   "Define a procedure."
   ^`(progn ,(when (stringp (car body))
