@@ -92,3 +92,17 @@
    return its value, otherwise if none of them return non-nil, return
    nil."
   ^`(cond ,@(mapcar #'list exps)))
+
+(defprimitive-macro prog1 (first &rest exps)
+  "Evaluate each expression sequentially and return the value of the
+   first one."
+  (let ((g (cl-gensym)))
+    ^`(let ((,g ,first))
+	,@exps
+	,g)))
+
+(defprimitive-macro prog2 (first second &rest exps)
+  "Evaluate each expression sequentially and return the value of the
+   second one."
+  ^`(progn ,first
+	   (prog1 ,second ,@exps)))
