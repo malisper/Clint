@@ -93,6 +93,16 @@
    nil."
   ^`(cond ,@(mapcar #'list exps)))
 
+(defprimitive-macro when (pred &rest exps)
+  "If PRED evaluates to non-nil, evaluate each expression in the body
+   sequentially."
+  ^`(if ,pred (progn ,@exps)))
+
+(defprimitive-macro unless (pred &rest exps)
+  "If PRED evaluates to nil, evaluate each expression in the body
+   sequentially."
+  ^`(when (not ,pred) ,@exps))
+
 (defprimitive-macro prog1 (first &rest exps)
   "Evaluate each expression sequentially and return the value of the
    first one."
