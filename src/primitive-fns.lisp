@@ -93,11 +93,11 @@
   "Sets the car of a cons pair to VAL."
   (rplaca pair val))
 
-(defprimitive-fn symbol-function (name)
+(defprimitive-fn fdefinition (name)
   "Returns the global procedure named by NAME."
   (global-fn name))
 
-(defprimitive-fn (setf symbol-function) (val name)
+(defprimitive-fn (setf fdefinition) (val name)
   "Set the global procedure named by NAME to VAL."
   (setf (global-fn name) val))
 
