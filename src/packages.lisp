@@ -19,4 +19,6 @@
 
 (defun cl-find-package (name)
   "Returns the Clint package of the given name."
-  (gethash name *packages*))
+  (if (typep name 'cl-package)
+      name
+      (gethash name *packages*)))
