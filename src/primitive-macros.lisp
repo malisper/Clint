@@ -71,13 +71,15 @@
   "Define a procedure."
   ^`(progn ,(when (stringp (car body))
               `(setf (documentation ',name 'function) ,(car body)))
-           (setf (fdefinition ',name) (lambda ,args ,@body))))
+           (setf (fdefinition ',name) (lambda ,args ,@body))
+	   ',name))
 
 (defprimitive-macro defmacro (name args &rest body)
   "Define a macro."
   ^`(progn ,(when (stringp (car body))
               `(setf (documentation ',name 'function) ,(car body)))
-           (setf (macro-function ',name) (lambda ,args ,@body))))
+           (setf (macro-function ',name) (lambda ,args ,@body))
+	   ',name))
 
 (defprimitive-macro and (&rest exps)
   "Evaluate each expression lazily. If any of them returns nil,
