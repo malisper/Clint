@@ -16,7 +16,8 @@
 						   (:file "intern")
 						   (:file "fns")
 						   (:file "arguments")
-						   (:file "interpreter")))
+						   (:file "interpreter")
+						   (:file "arguments2")))
 			     (:module "primitives"
 				      :components ((:file "defparameter")
 						   (:file "vars")

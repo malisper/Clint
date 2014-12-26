@@ -1,4 +1,6 @@
-;;;; Handles the binding of argument lists to the values.
+;;;; Handles the binding of argument lists to the values. Some of
+;;;; the binding methods are defined in arguments2 because they need
+;;;; access the evaluator.
 
 (in-package :clint)
 
@@ -7,7 +9,7 @@
    environment and function environment."
   (cons (bind args vals ^'regular) env))
 
-(defparameter *lambda-list-keywords* ^'(&rest))
+(defparameter *lambda-list-keywords* ^'(&rest &optional))
 
 (defgeneric bind (args vals kind)
   (:documentation "Bind the parameters of type KIND (optional, rest,
@@ -16,12 +18,13 @@
 (defmethod bind (args vals (kind (eql ^'regular)))
   "Bind regular keyword arguments."
   (cond ((null args)
-	 (unless (null vals)
-	   (error "Too many arguments.")))
-	((null vals)
-	 (error "Not enough arguments."))
+	 (if (null vals)
+	     '()
+	     (error "Too many values passed in.")))
 	((member (car args) *lambda-list-keywords*)
 	 (bind (cdr args) vals (car args)))
+	((null vals)
+	 (error "Not enough values passed in."))
 	(:else (cons (list (car args) (car vals))
 		     (bind (cdr args) (cdr vals) kind)))))
 
