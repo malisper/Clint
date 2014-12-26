@@ -10,6 +10,9 @@
 (defsuite predicates (clint))
 (defsuite logic-macros (clint))
 
+(defsuite libs (clint))
+(defsuite hofs (libs))
+
 (deftest quote (special-forms)
   (assert-eql ^'x (eval-string "'x "))
   (assert-equal ^'(a b c) (eval-string "'(a b c)")))
@@ -214,3 +217,33 @@
   (assert-eql 5  (eval-string "(or 5 '())"))
   (assert-eql 10 (eval-string "(or '() 10)"))
   (assert-false  (eval-string "(or '() '())")))
+
+(deftest member-if (hofs)
+  (assert-false (eval-string "(member-if #'evenp '())"))
+  (assert-true  (eval-string "(member-if #'evenp '(5 6))"))
+  (assert-true  (eval-string "(member-if #'oddp '(6 5))"))
+  (assert-false (eval-string "(member-if #'oddp '(4 6 2))"))
+  (assert-equal '(6 5)
+    (eval-string "(member-if #'evenp '(3 6 5))")))
+
+(deftest member (hofs)
+  (assert-false (eval-string "(member 5 '())"))
+  (assert-true  (eval-string "(member 5 '(1 2 3 4 5 6))"))
+  (assert-true  (eval-string "(member 6 '(6))"))
+  (assert-false (eval-string "(member 6 '(1 2 3 4 5 7))"))
+  (assert-equal '(4 5 6) (eval-string "(member 4 '(1 2 3 4 5 6))")))
+
+(deftest find-if (hofs)
+  (assert-false (eval-string "(find-if #'evenp '())"))
+  (assert-false (eval-string "(find-if #'evenp '(1 3 5))"))
+  (assert-eql 5 (eval-string "(find-if #'oddp '(6 5 4))"))
+  (assert-eql 4 (eval-string "(find-if #'evenp '(1 3 4))")))
+
+(deftest find (hofs)
+  (assert-false (eval-string "(find 5 '())"))
+  (assert-false (eval-string "(find 10 '(1 2 3 4 5))"))
+  (assert-eql 5 (eval-string "(find 5 '(1 3 5 10))")))
+
+(deftest mapcar (hofs)
+  (assert-equal '(t nil t) (eval-string "(mapcar #'oddp '(1 2 3))"))
+  (assert-equal '(1 4 9) (eval-string "(mapcar (lambda (x) (* x x)) '(1 2 3))")))
