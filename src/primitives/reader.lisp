@@ -50,14 +50,14 @@
   "Returns an adjustable string."
   (make-array 10 :element-type 'character :adjustable t :fill-pointer 0))
 
-(defun-cl read cl-read (&optional (stream *standard-input*) eof-error eof-val recur-p)
+(defun-cl read cl-read (&optional (stream *standard-input*) (eof-error t) eof-val recur-p)
   "Reads an expression from STREAM."
   (declare (ignore recur-p))
   (loop with buffer = (adjustable-string)
         for char = (peek-char nil stream nil nil) do
     (cond ((not char)
            (if eof-error
-               (error "EOF")
+               (error "Reached the end of the file.")
                (return eof-val)))
           ((whitespace char)
            (cond ((= (length buffer) 0) (read-char stream))
