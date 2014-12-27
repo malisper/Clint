@@ -193,3 +193,16 @@
 	 (lambda (&rest args)
 	   (cl-apply fn args))
 	 args))
+
+(defprimitive-fn get (symbol indicator &optional default)
+  "Look up the value of INDICATOR in SYMBOL's plist."
+  (or (cadr (member indicator (cl-symbol-plist symbol)))
+      default))
+
+(defprimitive-fn (setf get) (val symbol indicator)
+  "Set the value of INDICATOR in SYMBOLS's plist."
+  (with-slots (plist) symbol
+    (if (member indicator plist)
+	(setf (cadr (member indicator plist)) val)
+	(progn (setf plist (list* indicator val plist))
+	       val))))
