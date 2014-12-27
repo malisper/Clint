@@ -136,11 +136,21 @@
   (declare (ignore char))
   (read-char stream))
 
+(defun symbol-reader (stream char)
+  "Reads in an escaped symbol."
+  (declare (ignore char))
+  (loop with result = (adjustable-string)
+        for char = (read-char stream)
+        until (char= char #\|)
+        do (vector-push-extend char result)
+        finally (return (string->num/sym result))))
+
 (cl-set-macro-character #\( 'read-list)
 (cl-set-macro-character #\) 'end-list)
 (cl-set-macro-character #\' 'quote-reader)
 (cl-set-macro-character #\" 'string-reader)
 (cl-set-macro-character #\; 'comment-reader)
+(cl-set-macro-character #\| 'symbol-reader)
 
 (cl-make-dispatch-macro-character #\#)
 (cl-set-dispatch-macro-character #\# #\' 'sharp-quote-reader)
