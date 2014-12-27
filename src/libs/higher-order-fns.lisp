@@ -38,3 +38,9 @@
    list is returned."
   (mapcar f xs)
   xs)
+
+(defun mapl (f xs)
+  "Map a procedure over every cdr of a list. The orignal list is
+   returned."
+  (maplist f xs)
+  xs)
