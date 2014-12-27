@@ -37,7 +37,8 @@
 
 ;; This creates Clint's CL package if it does not already exist. This
 ;; line is early one because it is needed for cl-find-package.
-(or (cl-find-package "CL") (make-instance 'cl-package :name "CL"))
+(or (cl-find-package "CL") (make-instance 'cl-package :name "COMMON-LISP"
+					              :nicks '("CL")))
 
 (defun cl-intern (name &optional (designator (global-var ^'*package*)))
   "Interns a Clint symbol in the given Clint package."

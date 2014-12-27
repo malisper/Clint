@@ -48,6 +48,10 @@
   "Create a new package with the given name."
   (make-instance 'cl-package :name name))
 
+(defprimitive-fn package-nicknames (package)
+  "Returns the nicknames for the given package."
+  (cl-package-nicks package))
+
 (defprimitive-fn eq (x y)
   "Are these two things exact same object?"
   (eq x y))

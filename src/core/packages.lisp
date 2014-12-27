@@ -10,12 +10,16 @@
   ((name :initarg :name :accessor cl-package-name
          :documentation "The name of the package.")
    (syms :initarg :syms :accessor package-syms :initform (make-hash-table :test #'equal)
-         :documentation "The symbols contained in the package."))
+         :documentation "The symbols contained in the package.")
+   (nicks :initarg :nicks :accessor cl-package-nicks :initform '()
+	  :documentation "The nicknames for the package."))
   (:documentation "A Clint package."))
 
 (defmethod initialize-instance :after ((pack cl-package) &key)
   "Adds this package to the ICL *packages* global variable."
-  (setf (gethash (cl-package-name pack) *packages*) pack))
+  (setf (gethash (cl-package-name pack) *packages*) pack)
+  (dolist (nick (cl-package-nicks pack))
+    (setf (gethash nick *packages*) pack)))
 
 (defun cl-find-package (name)
   "Returns the Clint package of the given name."
