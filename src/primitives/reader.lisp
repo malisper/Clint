@@ -75,7 +75,14 @@
   "Converts a string to either a number or a Clint symbol."
   (if (every #'digit-char-p str)
       (parse-integer str)
-      (cl-intern (string-upcase str))))
+      (let ((colon (position #\: str)))
+	(if (not colon)
+	    (cl-intern (string-upcase str))
+	    (let* ((package (subseq str 0 colon))
+		   (last-colon (position #\: str :from-end t))
+		   (symbol (subseq str (+ last-colon 1))))
+	      (cl-intern (string-upcase symbol)
+			 (cl-find-package (string-upcase package))))))))
 
 (defun read-list (stream char)
   "Reads in a list."
