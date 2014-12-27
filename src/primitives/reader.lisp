@@ -71,6 +71,10 @@
                (return (string->num/sym buffer))))
           (:else (vector-push-extend (read-char stream) buffer)))))
 
+;; I'm going to have to rewrite this to accept separate package and
+;; symbol parts. An issue comes up when using the | reader macro
+;; where this still splits the symbol even though the colon should
+;; be escaped.
 (defun string->num/sym (str)
   "Converts a string to either a number or a Clint symbol."
   (if (every #'digit-char-p str)
