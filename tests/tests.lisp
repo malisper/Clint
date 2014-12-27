@@ -3,8 +3,8 @@
 (defmacro defassert-cl (new-name old-name &optional (is-result t))
   "Define a macro, NEW-NAME that is equivalent to OLD-NAME but runs
    it's second argument, a string, through the Clint interpreter.
-   The argument is-result should be nil if there is an expression
-   such as assert-true that has no result form."
+   The argument is-result should be nil if assertion is similar to
+   assert-true where there is no result form."
   (let ((expect (gensym)) (result (gensym)) (args (gensym)))
     `(defmacro ,new-name ,(if is-result
 			      `(,expect ,result &rest ,args)
@@ -17,7 +17,7 @@
 (defassert-cl assert-eql-cl    assert-eql)
 (defassert-cl assert-equal-cl  assert-equal)
 (defassert-cl assert-equalp-cl assert-equalp)
-(defassert-cl assert-true-cl   assert-true nil)
+(defassert-cl assert-true-cl   assert-true  nil)
 (defassert-cl assert-false-cl  assert-false nil)
 
 (defsuite clint ())

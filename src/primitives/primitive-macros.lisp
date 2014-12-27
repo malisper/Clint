@@ -118,3 +118,15 @@
    second one."
   ^`(progn ,first
 	   (prog1 ,second ,@exps)))
+
+(defprimitive-macro incf (place &optional (delta 1))
+  "Increment a place by the given value."
+  (multiple-value-bind (temps vals stores store-form access-form)
+                       (cl-get-setf-expansion place)
+    ^`(let* (,@(mapcar #'list temps vals)
+	     (,(car stores) (+ ,access-form ,delta)))
+	,store-form)))
+
+(defprimitive-macro decf (place &optional (delta 1))
+  "Decrement a place by the given value."
+  ^`(incf ,place (- ,delta)))
