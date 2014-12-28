@@ -20,25 +20,14 @@
    of the Clint variable *package*."
   (maptree (lambda (x)
              (if (typep x 'symbol)
-                 (string->cl-symbol (symbol-name x) package)
+                 (cl-intern (symbol-name x) package)
                  x))
            code))
-
-(defun string->cl-symbol (str &optional (package (global-var ^'*package*)))
-  "Takes a string and returns the Clint symbol it represents. If there
-   is no package attached to the string, it is interned into the
-   Clint package PACKAGE."
-  (if (not (find #\: str))
-      (cl-intern str package)
-      (let* ((pack-pos (position #\: str))
-             (sym-pos  (position #\: str :from-end t)))
-        (cl-intern (subseq str (+ sym-pos 1))
-                   (subseq str 0 pack-pos)))))
 
 ;; This creates Clint's CL package if it does not already exist. This
 ;; line is early one because it is needed for cl-find-package.
 (or (cl-find-package "CL") (make-instance 'cl-package :name "COMMON-LISP"
-					              :nicks '("CL")))
+					              :nicks (list "CL")))
 
 (defun cl-intern (name &optional (designator (global-var ^'*package*)))
   "Interns a Clint symbol in the given Clint package."

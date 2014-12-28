@@ -50,43 +50,56 @@
   "Returns an adjustable string."
   (make-array 10 :element-type 'character :adjustable t :fill-pointer 0))
 
+(defun empty (str)
+  "Is this string the empty string?"
+  (= (length str) 0))
+(proclaim '(inline empty))
+
 (defun-cl read cl-read (&optional (stream *standard-input*) (eof-error t) eof-val recur-p)
   "Reads an expression from STREAM."
   (declare (ignore recur-p))
-  (loop with buffer = (adjustable-string)
+  (loop with str1 = (adjustable-string)
+        with str2 = (adjustable-string)
+        with read-colon = nil
         for char = (peek-char nil stream nil nil) do
     (cond ((not char)
            (if eof-error
                (error "Reached the end of the file.")
                (return eof-val)))
+	  ((eql char #\:)
+	   (setf read-colon t)
+	   (read-char stream))
           ((whitespace char)
-           (cond ((= (length buffer) 0) (read-char stream))
-                 ((equalp buffer ".") (read-char stream) (throw 'atom (cl-read stream)))
-                 (:else (return (string->num/sym buffer)))))
+           (cond ((and (empty str1) (empty str2))
+		  (read-char stream))
+                 ((equal str1 ".")
+		  (read-char stream)
+		  (throw 'atom (cl-read stream)))
+                 (read-colon
+		  (return (strings->num/sym str2 str1)))
+		 (:else
+		  (return (strings->num/sym str1)))))
           ((cl-get-macro-character char)
-           (if (= (length buffer) 0)
-               (progn (read-char stream)
-                      (return (funcall (cl-get-macro-character char)
-                                       stream char)))
-               (return (string->num/sym buffer))))
-          (:else (vector-push-extend (read-char stream) buffer)))))
+           (cond ((and (empty str1) (empty str2))
+		  (read-char stream)
+		  (return (funcall (cl-get-macro-character char)
+				   stream char)))
+		 (read-colon
+		  (return (strings->num/sym str2 str1)))
+		 (:else
+		  (return (strings->num/sym str1)))))
+          (read-colon
+	   (vector-push-extend (read-char stream) str2))
+	  (:else
+	   (vector-push-extend (read-char stream) str1)))))
 
-;; I'm going to have to rewrite this to accept separate package and
-;; symbol parts. An issue comes up when using the | reader macro
-;; where this still splits the symbol even though the colon should
-;; be escaped.
-(defun string->num/sym (str)
+(defun strings->num/sym (name &optional (package cl-*package*))
   "Converts a string to either a number or a Clint symbol."
-  (if (every #'digit-char-p str)
-      (parse-integer str)
-      (let ((colon (position #\: str)))
-	(if (not colon)
-	    (cl-intern (string-upcase str))
-	    (let* ((package (subseq str 0 colon))
-		   (last-colon (position #\: str :from-end t))
-		   (symbol (subseq str (+ last-colon 1))))
-	      (cl-intern (string-upcase symbol)
-			 (cl-find-package (string-upcase package))))))))
+  (if (every #'digit-char-p name)
+      (parse-integer name)
+      (cl-intern (string-upcase name) (if (stringp package)
+					  (string-upcase package)
+					  package))))
 
 (defun read-list (stream char)
   "Reads in a list."
@@ -140,21 +153,11 @@
   (declare (ignore char))
   (read-char stream))
 
-(defun symbol-reader (stream char)
-  "Reads in an escaped symbol."
-  (declare (ignore char))
-  (loop with result = (adjustable-string)
-        for char = (read-char stream)
-        until (char= char #\|)
-        do (vector-push-extend char result)
-        finally (return (string->num/sym result))))
-
 (cl-set-macro-character #\( 'read-list)
 (cl-set-macro-character #\) 'end-list)
 (cl-set-macro-character #\' 'quote-reader)
 (cl-set-macro-character #\" 'string-reader)
 (cl-set-macro-character #\; 'comment-reader)
-(cl-set-macro-character #\| 'symbol-reader)
 
 (cl-make-dispatch-macro-character #\#)
 (cl-set-dispatch-macro-character #\# #\' 'sharp-quote-reader)
