@@ -61,17 +61,25 @@
   (loop with str1 = (adjustable-string)
         with str2 = (adjustable-string)
         with read-colon = nil
+        with escaped    = nil
         for char = (peek-char nil stream nil nil) do
     (cond ((not char)
            (if eof-error
                (error "Reached the end of the file.")
                (return eof-val)))
+	  ((eql char #\|)
+	   (read-char stream)
+	   (setf escaped (not escaped)))
+	  (escaped
+	   (if read-colon
+	       (vector-push-extend (read-char stream) str2)
+	       (vector-push-extend (read-char stream) str1)))
 	  ((eql char #\:)
-	   (setf read-colon t)
-	   (read-char stream))
+	   (read-char stream)
+	   (setf read-colon t))
           ((whitespace char)
            (cond ((and (empty str1) (empty str2))
-		  (read-char stream))
+ 		  (read-char stream))
                  ((equal str1 ".")
 		  (read-char stream)
 		  (throw 'atom (cl-read stream)))
