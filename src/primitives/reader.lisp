@@ -141,7 +141,9 @@
   (loop with result = (adjustable-string)
         for char = (read-char stream)
         until (char= char #\")
-        do (vector-push-extend char result)
+        do (vector-push-extend
+	     (if (char= char #\\) (read-char stream) char)
+	     result)
         finally (return result)))
 
 (defun comment-reader (stream char)

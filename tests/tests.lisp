@@ -101,7 +101,8 @@
 
 (deftest eval (appliers)
   (assert-eql-cl 8 "(eval '(+ 3 5))")
-  (assert-eql-cl 20 "(eval '(+ (* 5 3) 5))"))
+  (assert-eql-cl 20 "(eval '(+ (* 5 3) 5))")
+  (assert-equal-cl 10 "(eval (list '+ 1 2 3 4))"))
 
 (deftest let (macros)
   (assert-eql-cl 5 "(let ((x 2) (y 3)) (+ x y))")
