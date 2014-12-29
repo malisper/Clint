@@ -32,6 +32,7 @@
 
 (defsuite libs (clint))
 (defsuite hofs (libs))
+(defsuite list (libs))
 
 (deftest quote (special-forms)
   (assert-eql-cl ^'x "'x ")
@@ -267,3 +268,15 @@
 (deftest mapcar (hofs)
   (assert-equal-cl '(t nil t) "(mapcar #'oddp '(1 2 3))")
   (assert-equal-cl '(1 4 9) "(mapcar (lambda (x) (* x x)) '(1 2 3))"))
+
+(deftest list (list)
+  (assert-equal-cl '() "(list)")
+  (assert-equal-cl '(1 2 3) "(list 1 2 3)")
+  (assert-equal-cl '(1 2 3 4 5) "(apply #'list 1 2 '(3 4 5))"))
+
+(deftest nthcdr (list)
+  (assert-equal-cl '(1 2 3) "(nthcdr 0 '(1 2 3))")
+  (assert-equal-cl '(2 3)   "(nthcdr 1 '(1 2 3))")
+  (assert-equal-cl '(3)     "(nthcdr 2 '(1 2 3))")
+  (assert-equal-cl '()      "(nthcdr 3 '(1 2 3))")
+  (assert-equal-cl '()      "(nthcdr 4 '(1 2 3))"))
