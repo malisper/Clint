@@ -53,7 +53,6 @@
 (defun empty (str)
   "Is this string the empty string?"
   (= (length str) 0))
-(proclaim '(inline empty))
 
 (defun-cl read cl-read (&optional (stream *standard-input*) (eof-error t) eof-val recur-p)
   "Reads an expression from STREAM."

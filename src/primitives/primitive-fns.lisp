@@ -210,3 +210,15 @@
 	(setf (cadr (member indicator plist)) val)
 	(progn (setf plist (list* indicator val plist))
 	       val))))
+
+(defprimitive-fn make-hash-table ()
+  "Create a hash table."
+  (make-hash-table))
+
+(defprimitive-fn gethash (key tab)
+  "Look up a key in a hash table."
+  (gethash key tab))
+
+(defprimitive-fn (setf gethash) (val key tab)
+  "Set a value in a hash table."
+  (setf (gethash key tab) val))
