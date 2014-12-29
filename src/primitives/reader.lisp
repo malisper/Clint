@@ -186,24 +186,6 @@
             until (eq g exp)
             do (cl-eval exp *env* *fenv*)))))
 
-(cl-defparameter * cl-* nil
-  "The result of the previous expression.")
-
-(cl-defparameter ** cl-** nil
-  "The result of the second to last expression.")
-
-(cl-defparameter *** cl-*** nil
-  "The result of the third to last expression.")
-
-(cl-defparameter + cl-+ nil
-  "The previous expression.")
-
-(cl-defparameter ++ cl-++ nil
-  "The second to last expression.")
-
-(cl-defparameter +++ cl-+++ nil
-  "The third to last expression.")
-
 (defun repl ()
   "A REPL for Clint."
   (catch 'exit ;; For exit to throw to exit the Clint repl.
