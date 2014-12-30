@@ -281,3 +281,10 @@
   (assert-equal-cl '(3)     "(nthcdr 2 '(1 2 3))")
   (assert-equal-cl '()      "(nthcdr 3 '(1 2 3))")
   (assert-equal-cl '()      "(nthcdr 4 '(1 2 3))"))
+
+(deftest equal (list)
+  (assert-true-cl  "(equal '() '())")
+  (assert-false-cl "(equal '() 5)")
+  (assert-true-cl  "(equal '(1 2 3) (list 1 2 3))")
+  (assert-false-cl "(equal '(1 2 3) '(1 2))")
+  (assert-false-cl "(equal '(1 2 3) '(1 3 3))"))

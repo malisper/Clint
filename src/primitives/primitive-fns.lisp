@@ -222,3 +222,7 @@
 (defprimitive-fn (setf gethash) (val key tab)
   "Set a value in a hash table."
   (setf (gethash key tab) val))
+
+(defprimitive-fn atom (x)
+  "Is this an atom?"
+  (atom x))
