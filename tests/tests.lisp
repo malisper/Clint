@@ -288,3 +288,9 @@
   (assert-true-cl  "(equal '(1 2 3) (list 1 2 3))")
   (assert-false-cl "(equal '(1 2 3) '(1 2))")
   (assert-false-cl "(equal '(1 2 3) '(1 3 3))"))
+
+(deftest length (list)
+  (assert-eql-cl 0 "(length '())")
+  (assert-eql-cl 1 "(length '(a))")
+  (assert-eql-cl 2 "(length '(1 2))")
+  (assert-eql-cl 3 "(length '(1 2 3))"))

@@ -15,3 +15,9 @@
            (not (atom y))
            (equal (car x) (car y))
            (equal (cdr x) (cdr y)))))
+
+(defun length (x)
+  "Returns the length of a list."
+  (if (null x)
+      0
+      (+ 1 (length (cdr x)))))
