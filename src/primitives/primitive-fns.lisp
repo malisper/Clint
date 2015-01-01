@@ -215,13 +215,17 @@
   "Create a hash table."
   (make-hash-table))
 
-(defprimitive-fn gethash (key tab)
+(defprimitive-fn gethash (key tab default)
   "Look up a key in a hash table."
-  (gethash key tab))
+  (gethash key tab default))
 
 (defprimitive-fn (setf gethash) (val key tab)
   "Set a value in a hash table."
   (setf (gethash key tab) val))
+
+(defprimitive-fn remhash (key tab)
+  "Remove the given key in the table."
+  (remhash key tab))
 
 (defprimitive-fn atom (x)
   "Is this an atom?"
