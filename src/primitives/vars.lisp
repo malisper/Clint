@@ -20,6 +20,9 @@
 (cl-defparameter *** cl-*** nil
   "The result of the third to last expression.")
 
+(cl-defparameter - cl-- nil
+  "The current expression being evaluated.")
+
 (cl-defparameter + cl-+ nil
   "The previous expression.")
 
