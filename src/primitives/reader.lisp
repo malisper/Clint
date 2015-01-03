@@ -162,6 +162,11 @@
   (declare (ignore char))
   (read-char stream))
 
+(defun eval-read (stream char)
+  "Evaluates the next expression read in."
+  (declare (ignore char))
+  (cl-eval (cl-read stream) *env* *fenv*))
+
 (cl-set-macro-character #\( 'read-list)
 (cl-set-macro-character #\) 'end-list)
 (cl-set-macro-character #\' 'quote-reader)
@@ -172,6 +177,7 @@
 (cl-set-dispatch-macro-character #\# #\' 'sharp-quote-reader)
 (cl-set-dispatch-macro-character #\# #\( 'array-reader)
 (cl-set-dispatch-macro-character #\# #\\ 'char-reader)
+(cl-set-dispatch-macro-character #\# #\. 'eval-read)
 
 (defun eval-string (str)
   "Read an expression from STR and evaluate it."
