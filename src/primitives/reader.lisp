@@ -167,6 +167,11 @@
   (declare (ignore char))
   (cl-eval (cl-read stream) *env* *fenv*))
 
+(defun unreadable-object (stream char)
+  "Signals an error."
+  (declare (ignore char stream))
+  (error "Unreadable object."))
+
 (cl-set-macro-character #\( 'read-list)
 (cl-set-macro-character #\) 'end-list)
 (cl-set-macro-character #\' 'quote-reader)
@@ -178,6 +183,7 @@
 (cl-set-dispatch-macro-character #\# #\( 'array-reader)
 (cl-set-dispatch-macro-character #\# #\\ 'char-reader)
 (cl-set-dispatch-macro-character #\# #\. 'eval-read)
+(cl-set-dispatch-macro-character #\# #\< 'unreadable-object)
 
 (defun eval-string (str)
   "Read an expression from STR and evaluate it."
