@@ -27,7 +27,8 @@
     (lambda (stream c)
       (declare (ignore c))
       (let* ((next (read-char stream))
-             (fn (gethash next (gethash char (readtable-dispatch readtable))
+             (fn (gethash (char-upcase next)
+                          (gethash char (readtable-dispatch readtable))
                           (lambda (stream c) (declare (ignore stream c))
                             (error "Undefined dispatch-macro-character ~A~A" char next)))))
         (funcall fn stream next)))
@@ -35,7 +36,7 @@
 
 (defun cl-set-dispatch-macro-character (char subchar fn &optional (readtable cl-*readtable*))
   "Whenever the reader encounters CHAR followed by SUBCHAR, call FN."
-  (setf (gethash subchar (gethash char (readtable-dispatch readtable))) fn)
+  (setf (gethash (char-upcase subchar) (gethash char (readtable-dispatch readtable))) fn)
   t)
 
 (defun cl-get-macro-character (char &optional (readtable cl-*readtable*))
