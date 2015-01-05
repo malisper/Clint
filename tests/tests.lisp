@@ -29,6 +29,7 @@
 (defsuite setters (clint))
 (defsuite predicates (clint))
 (defsuite logic-macros (clint))
+(defsuite symbols (clint))
 
 (defsuite libs (clint))
 (defsuite hofs (libs))
@@ -222,6 +223,12 @@
   (assert-false-cl "(null 1)")
   (assert-false-cl "(null 'x)"))
 
+(deftest atom (predicates)
+  (assert-true-cl  "(atom '())")
+  (assert-true-cl  "(atom 'x)")
+  (assert-true-cl  "(atom 1)")
+  (assert-false-cl "(atom '(1 2 3))"))
+
 (deftest and (logic-macros)
   (assert-true-cl   "(and)")
   (assert-false-cl  "(and '())")
@@ -294,3 +301,18 @@
   (assert-eql-cl 1 "(length '(a))")
   (assert-eql-cl 2 "(length '(1 2))")
   (assert-eql-cl 3 "(length '(1 2 3))"))
+
+(deftest make-symbol (symbols)
+  (let ((sym (eval-string "(make-symbol \"X\")")))
+    (assert-equalp "X" (cln::cl-symbol-name sym))
+    (assert-equal nil (cln::cl-symbol-package sym))))
+
+(deftest gensym (symbols)
+  (let ((sym (eval-string "(gensym)")))
+    (assert-equal nil (cln::cl-symbol-package sym))))
+
+(deftest gentemp (symbols)
+  (let ((sym (eval-string "(gentemp)")))
+    (assert-equalp "COMMON-LISP"
+	(cln::cl-package-name
+	  (cln::cl-symbol-package sym)))))
