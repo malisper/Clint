@@ -30,6 +30,7 @@
 (defsuite predicates (clint))
 (defsuite logic-macros (clint))
 (defsuite symbols (clint))
+(defsuite reader (clint))
 
 (defsuite libs (clint))
 (defsuite hofs (libs))
@@ -316,3 +317,21 @@
     (assert-equalp "COMMON-LISP"
 	(cln::cl-package-name
 	  (cln::cl-symbol-package sym)))))
+
+(deftest string-reader (reader)
+  (assert-equal-cl "" "\"\"")
+  (assert-equal-cl "hello" "\"hello\""))
+
+(deftest char-reader (reader)
+  ;; Need to implement #\Space etc.
+  (assert-eql-cl #\x "#\\x")
+  (assert-eql-cl #\) "#\\)")
+  (assert-eql-cl #\" "#\\\""))
+
+(deftest eval-read (reader)
+  (assert-equal '(1 2 3)
+    (with-input-from-string (in "#.(list 1 2 3)")
+      (cln::cl-read in)))
+  (assert-eql 10
+    (with-input-from-string (in "#.(+ 5 5)")
+      (cln::cl-read in))))
