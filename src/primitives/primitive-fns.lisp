@@ -230,3 +230,11 @@
 (defprimitive-fn atom (x)
   "Is this an atom?"
   (atom x))
+
+(defprimitive-fn symbol-name (x)
+  "Return the name of this symbol."
+  (cl-symbol-name x))
+
+(defprimitive-fn symbol-package (x)
+  "Return the package of this symbol."
+  (cl-symbol-package x))
