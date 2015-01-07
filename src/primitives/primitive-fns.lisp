@@ -29,7 +29,7 @@
 
 (defprimitive-fn eval (exp)
   "Evals a list as code."
-  (cl-eval exp *env* *fenv*))
+  (top-eval exp))
 
 (defprimitive-fn package-name (pack)
   "Look up the name of the given package."

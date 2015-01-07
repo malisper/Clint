@@ -6,6 +6,7 @@
 
 (defvar *env*  (list '()) "The global variable environment.")
 (defvar *fenv* (list '()) "The global function environment.")
+(defvar *denv* (list '()) "The global dynamic variable environment.")
 
 (defun cl-boundp (var env)
   "Is this variable bound in the given environment? If it is return
@@ -17,36 +18,37 @@
           (assoc var e :test #'equal))
         env))
 
-(defun binding (var env)
+(defun binding (var env denv)
   "Looks up the value of the variable VAR in the enviornment ENV.
    The return value is a list containing VAR as the first element and
    its value as the second. This works for both the variable
    environment and the function environment."
   (or (cl-boundp var env)
+      (cl-boundp var denv)
       (error "Unbound variable or procedure ~A." var)))
 
-(defun val (var env)
-  "Look up the value of VAR in the environment ENV. This will work 
+(defun val (var env &optional (denv env))
+  "Look up the value of VAR in the environment ENV. This will work
    for both the variable environment and the function environment."
-  (cadr (binding var env)))
+  (cadr (binding var env denv)))
 
-(defun (setf val) (val var env)
+(defun (setf val) (val var env &optional (denv env))
   "Sets the value of VAR in the given environment to VAL. If the
-   variable VAR is unbound. It will be added to the global 
+   variable VAR is unbound. It will be added to the global
    environment (the last frame of the environment passed in)."
-  (let ((binding (cl-boundp var env)))
+  (let ((binding (or (cl-boundp var env) (cl-boundp var denv))))
     (if binding
         (setf (cadr binding) val)
-        (progn (push (list var val) (car (last env)))
+        (progn (push (list var val) (car (last denv)))
                val))))
 
 (defun global-var (var)
   "Looks up the value of the global variable named by VAR."
-  (val var *env*))
+  (val var *env* *denv*))
 
 (defun (setf global-var) (val var)
   "Sets the value of VAR to VAL in the global variable environment."
-  (setf (val var *env*) val))
+  (setf (val var *env* *denv*) val))
 
 (defun global-fn (name)
   "Looks up the value of the global function named by NAME."

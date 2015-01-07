@@ -120,7 +120,7 @@
     (cdr list)))
 
 (defun end-list (stream char)
-  "This will signal that the end of a list has been reached to 
+  "This will signal that the end of a list has been reached to
    read-list."
   (declare (ignore stream char))
   (throw 'end-of-list nil))
@@ -166,7 +166,7 @@
 (defun eval-read (stream char)
   "Evaluates the next expression read in."
   (declare (ignore char))
-  (cl-eval (cl-read stream) *env* *fenv*))
+  (top-eval (cl-read stream)))
 
 (defun unreadable-object (stream char)
   "Signals an error."
@@ -189,7 +189,7 @@
 (defun eval-string (str)
   "Read an expression from STR and evaluate it."
   (with-input-from-string (stream str)
-    (cl-eval (cl-read stream) *env* *fenv*)))
+    (top-eval (cl-read stream))))
 
 (defun-cl load cl-load (file)
   "Evaluates all of the expressions in a file."
@@ -197,7 +197,7 @@
     (let ((g (gensym)))
       (loop for exp = (cl-read in nil g)
             until (eq g exp)
-            do (cl-eval exp *env* *fenv*)))))
+            do (top-eval exp)))))
 
 (defun repl ()
   "A REPL for Clint."
@@ -206,7 +206,7 @@
       (format t "~&=> ")
       (with-simple-restart (cl-repl "Return to Clint's repl.")
         (setf cl-- (cl-read))
-        (shiftf cl-*** cl-** cl-* (cl-eval cl-- *env* *fenv*))
+        (shiftf cl-*** cl-** cl-* (top-eval cl--))
         (shiftf cl-+++ cl-++ cl-+ cl--)
         (format t "~&~A" cl-*)
         cl-*))))
