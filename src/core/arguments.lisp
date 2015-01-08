@@ -4,10 +4,16 @@
 
 (in-package :clint)
 
-(defun extend-env (env args vals)
+(defun extend-envs (env denv args vals)
   "Extend a given environment. This works for both the variable
    environment and function environment."
-  (cons (bind args vals ^'regular) env))
+  (loop for pair in (bind args vals ^'regular)
+        if (cl-symbol-special (car pair))
+          collect pair into dynamics
+        else
+          collect pair into lexicals
+        finally (return (values (cons lexicals env)
+                                (cons dynamics denv)))))
 
 (defparameter *lambda-list-keywords* ^'(&rest &optional))
 

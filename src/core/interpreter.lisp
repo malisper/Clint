@@ -69,8 +69,8 @@
    environment ENV and function environment FENV."
   (etypecase f
     (prim-fn   (apply (prim-code f) args))
-    (lambda-fn (cl-eval (fn-code f)
-                        (extend-env (fn-env f) (fn-args f) args)
-                        (fn-fenv f)
-                        denv))
+    (lambda-fn (multiple-value-bind
+                     (new-env new-denv)
+                     (extend-envs (fn-env f) denv (fn-args f) args)
+                 (cl-eval (fn-code f) new-env (fn-fenv f) new-denv)))
     (cl-symbol (cl-apply (val f fenv) args env fenv))))
