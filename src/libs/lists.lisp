@@ -21,3 +21,8 @@
   (if (null x)
       0
       (+ 1 (length (cdr x)))))
+
+(defun append (&rest xss)
+  (cond ((null (cdr xss)) (car xss))
+        ((null (car xss)) (apply #'append (cdr xss)))
+        ('else  (cons (caar xss) (apply #'append (cdar xss) xss)))))
