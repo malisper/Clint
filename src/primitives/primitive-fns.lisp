@@ -77,6 +77,14 @@
   "Returns the first element of a pair."
   (car x))
 
+(defprimitive-fn caar (x)
+  "Returns the car of the car of X."
+  (caar x))
+
+(defprimitive-fn cadr (x)
+  "Returns the second element of a list."
+  (cadr x))
+
 (defprimitive-fn (setf car) (val pair)
   "Sets the car of a pair."
   (setf (car pair) val))
@@ -84,6 +92,14 @@
 (defprimitive-fn cdr (x)
   "Returns the second element of a pair."
   (cdr x))
+
+(defprimitive-fn cdar (x)
+  "Returns the cdr of the car of X."
+  (cdar x))
+
+(defprimitive-fn cddr (x)
+  "Return the cdr of the cdr of X."
+  (cddr x))
 
 (defprimitive-fn (setf cdr) (val pair)
   "Sets the cdr of a cons pair."
