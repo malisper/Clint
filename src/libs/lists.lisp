@@ -2,6 +2,12 @@
   "Return a list containing the given arguments."
   args)
 
+(defun list* (&rest args)
+  "Return a dotted list containing all of the elements."
+  (if (null (cdr args))
+      (car args)
+      (cons (car args) (apply #'list* (cdr args)))))
+
 (defun nthcdr (n xs)
   "Returns the Nth cdr of XS."
   (if (eql n 0)
