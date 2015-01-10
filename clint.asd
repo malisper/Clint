@@ -25,5 +25,6 @@
 						   (:file "misc")
 						   (:file "setf")
 						   (:file "reader")
+                                                   (:file "cxr")
 						   (:file "primitive-fns")
 						   (:file "primitive-macros")))))))

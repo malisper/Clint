@@ -73,37 +73,7 @@
   "Returns a cons pair containing the elements X and Y."
   (cons x y))
 
-(defprimitive-fn car (x)
-  "Returns the first element of a pair."
-  (car x))
-
-(defprimitive-fn caar (x)
-  "Returns the car of the car of X."
-  (caar x))
-
-(defprimitive-fn cadr (x)
-  "Returns the second element of a list."
-  (cadr x))
-
-(defprimitive-fn (setf car) (val pair)
-  "Sets the car of a pair."
-  (setf (car pair) val))
-
-(defprimitive-fn cdr (x)
-  "Returns the second element of a pair."
-  (cdr x))
-
-(defprimitive-fn cdar (x)
-  "Returns the cdr of the car of X."
-  (cdar x))
-
-(defprimitive-fn cddr (x)
-  "Return the cdr of the cdr of X."
-  (cddr x))
-
-(defprimitive-fn (setf cdr) (val pair)
-  "Sets the cdr of a cons pair."
-  (setf (cdr pair) val))
+(define-cxrs 4)
 
 (defprimitive-fn rplacd (pair val)
   "Sets the cdr of PAIR to VAL."
