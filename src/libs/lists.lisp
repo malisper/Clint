@@ -29,6 +29,21 @@
       (+ 1 (length (cdr x)))))
 
 (defun append (&rest xss)
+  "Append all of the arguments together."
   (cond ((null (cdr xss)) (car xss))
         ((null (car xss)) (apply #'append (cdr xss)))
         ('else (cons (caar xss) (apply #'append (cdar xss) (cdr xss))))))
+
+(defun last (xs)
+  "Returns the last cons pair of a list."
+  (if (null (cdr xs))
+      xs
+      (last (cdr xs))))
+
+(defun nconc (&rest xss)
+  "Appends lists together by modifying the tail of each one to point
+   to the one after it."
+  (cond ((null (cdr xss)) (car xss))
+        ((null (car xss)) (apply #'nconc (cdr xss)))
+        ('else (setf (cdr (last (car xss)))
+               (apply #'nconc (cdr xss))))))
