@@ -18,16 +18,18 @@ and cl-eval-if do not have ICL equivalents. The procedure cl-doc is
 equivalent to the ICL procedure, documentation, I just truncated the
 name.
 
-Primitives: Special forms are defined as part of cl-eval, the core of
-the interpreter, in the interp.lisp file. All of the primitive
-procedures are defined in the primitive-fns.lisp file and all of
-primitive macros are defined in the primitive-macros.lisp file.
+Core: The core of the interpreter is in the src/core/ directory. This
+includes the implementation of eval, apply, intern, special forms, and
+several other primitives at the foundation of the interpreter.
 
-Non-primitives: Currently the only non-primitive Clint code is in the
-higher-order-fns.lisp file. Unfortunately I have not yet been able to
-figure out how to have it load with the rest of Clint (all of the
-primitives will be loaded). To load it manually, use either cl-load
-in the ICL or load from within Clint.
+Primitives: All of the primitives that are not at the heart of Clint
+are in the src/primitives/ directory. It also contains all of the
+basic variable definitions.
+
+Non-primitives: All of the non-primitives are in the src/libs/ folder.
+Currently there are two files. One that contains several higher order
+functions and another that contains several utilities for working with
+lists.
 
 Evaluating Code: There are currently two wasy to evaluate code with
 Clint. There is the procedure "repl", which will start a repl. And
