@@ -283,6 +283,12 @@
   (assert-equal-cl '(1 2 3) "(list 1 2 3)")
   (assert-equal-cl '(1 2 3 4 5) "(apply #'list 1 2 '(3 4 5))"))
 
+(deftest list* (list)
+  (assert-eql-cl ^'a "(list* 'a)")
+  (assert-equal-cl '(1 2 3) "(list* 1 '(2 3))")
+  (assert-equal-cl '(1 . 2) "(list* 1 2)")
+  (assert-equal-cl '(1 2 3 4 5 6) "(list* 1 2 3 '(4 5 6))"))
+
 (deftest nthcdr (list)
   (assert-equal-cl '(1 2 3) "(nthcdr 0 '(1 2 3))")
   (assert-equal-cl '(2 3)   "(nthcdr 1 '(1 2 3))")
@@ -302,6 +308,13 @@
   (assert-eql-cl 1 "(length '(a))")
   (assert-eql-cl 2 "(length '(1 2))")
   (assert-eql-cl 3 "(length '(1 2 3))"))
+
+(deftest append (list)
+  (assert-equal-cl '() "(append)")
+  (assert-equal-cl '() "(append '())")
+  (assert-equal-cl '() "(append '() '() '())")
+  (assert-equal-cl '(1 2 3) "(append '() '(1 2 3) '())")
+  (assert-equal-cl '(1 2 3 4 5 6) "(append '(1 2 3) '(4 5 6))"))
 
 (deftest make-symbol (symbols)
   (let ((sym (eval-string "(make-symbol \"X\")")))
