@@ -46,4 +46,5 @@
   (cond ((null (cdr xss)) (car xss))
         ((null (car xss)) (apply #'nconc (cdr xss)))
         ('else (setf (cdr (last (car xss)))
-               (apply #'nconc (cdr xss))))))
+		     (apply #'nconc (cdr xss)))
+	       (car xss))))
