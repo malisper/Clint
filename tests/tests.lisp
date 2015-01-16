@@ -35,6 +35,7 @@
 (defsuite libs (clint))
 (defsuite hofs (libs))
 (defsuite list-lib (libs))
+(defsuite fns (libs))
 
 (deftest quote (special-forms)
   (assert-eql-cl ^'x "'x ")
@@ -360,3 +361,11 @@
   (assert-eql 10
     (with-input-from-string (in "#.(+ 5 5)")
       (cln::cl-read in))))
+
+(deftest identity (fns)
+  (assert-eql-cl 5 "(identity 5)")
+  (assert-eql-cl ^'hello "(identity 'hello)"))
+
+(deftest constantly (fns)
+  (assert-eql-cl 5 "(funcall (constantly 5) 1 2 3)")
+  (assert-equal-cl '(1 1 1) "(mapcar (constantly 1) '(5 6 7))"))
