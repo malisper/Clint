@@ -29,6 +29,12 @@
 (or (cl-find-package "CL") (make-instance 'cl-package :name "COMMON-LISP"
 					              :nicks (list "CL")))
 
+(setf (gethash "*PACKAGE*" (package-syms (cl-find-package "CL")))
+      (make-instance 'cl-symbol :name "*PACKAGE*" :package (cl-find-package "CL")))
+
+(setf (global-var (gethash "*PACKAGE*" (package-syms (cl-find-package "CL"))))
+      (cl-find-package "CL"))
+
 (defun cl-intern (name &optional (designator (global-var ^'*package*)) internal)
   "Look up the symbol named by NAME in the given package. The
    argument INTERNAL is if it is possible to look at the internal
