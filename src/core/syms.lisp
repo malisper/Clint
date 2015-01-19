@@ -10,9 +10,7 @@
    (plist    :initarg :plist   :accessor cl-symbol-plist :initform nil
 	     :documentation "A symbol's plist.")
    (special  :initarg :special :accessor cl-symbol-special :initform nil
-             :documentation "Is this variable dynamic?")
-   (external :initarg :external :accessor cl-symbol-external :initform nil
-	     :documentation "Is this symbol external?")))
+             :documentation "Is this variable dynamic?")))
 
 (defmethod print-object ((sym cl-symbol) s)
   "Prints the name of the Clint symbol."

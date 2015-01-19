@@ -12,7 +12,9 @@
    (syms :initarg :syms :accessor package-syms :initform (make-hash-table :test #'equal)
          :documentation "The symbols contained in the package.")
    (nicks :initarg :nicks :accessor cl-package-nicks :initform '()
-	  :documentation "The nicknames for the package."))
+	  :documentation "The nicknames for the package.")
+   (externals :initarg :cl-package-externals :initform (make-hash-table :test #'equal)
+	      :documentation "A list of all of the external symbols."))
   (:documentation "A Clint package."))
 
 (defmethod initialize-instance :after ((pack cl-package) &key)
