@@ -17,4 +17,4 @@
     (if (gethash name (package-syms (cl-find-package package)))
 	(progn (incf cl-*gensym-counter*)
 	       (cl-gentemp prefix package))
-	(cl-intern name package))))
+	(cl-intern name package t))))
