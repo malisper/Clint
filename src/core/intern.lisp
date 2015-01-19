@@ -29,20 +29,23 @@
 (or (cl-find-package "CL") (make-instance 'cl-package :name "COMMON-LISP"
 					              :nicks (list "CL")))
 
-(defun cl-intern (name &optional (designator (global-var ^'*package*))
-			         (internal (eq (cl-find-package designator)
-					       (cl-find-package (global-var ^'*package*)))))
+(defun cl-intern (name &optional (designator (global-var ^'*package*)) internal)
   "Look up the symbol named by NAME in the given package. The
    argument INTERNAL is if it is possible to look at the internal
    symbols in the package."
   (let* ((package (cl-find-package designator))
-	 (sym (gethash name (package-syms package))))
-    (cond (sym (if (or internal (member sym (cl-package-externals package)))
+	 (sym (gethash name (package-syms package)))
+	 ;; I want to get rid of the following hack.
+	 (current-package (eq package (global-var (gethash "*PACKAGE*" (package-syms (cl-find-package "CL")))))))
+    (cond (sym (if (or internal
+		       current-package
+		       (gethash sym (cl-package-externals package)))
 		   sym
 		   (error "The symbol ~A is not external in the package ~A"
 			  sym package)))
-	  (internal (setf (gethash name (package-syms package))
-			  (make-instance 'cl-symbol :package package :name name)))
+	  ((or internal current-package)
+	   (setf (gethash name (package-syms package))
+		 (make-instance 'cl-symbol :package package :name name)))
 	  (:else (error "No symbol with the name ~A found in the package ~A"
 			name package)))))
 
