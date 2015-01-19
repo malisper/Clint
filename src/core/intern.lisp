@@ -20,7 +20,7 @@
    of the Clint variable *package*."
   (maptree (lambda (x)
              (if (typep x 'symbol)
-                 (cl-intern (symbol-name x) package)
+                 (cl-intern (symbol-name x) package t)
                  x))
            code))
 
@@ -29,15 +29,22 @@
 (or (cl-find-package "CL") (make-instance 'cl-package :name "COMMON-LISP"
 					              :nicks (list "CL")))
 
-(defun cl-intern (name &optional (designator (global-var ^'*package*)))
-  "Interns a Clint symbol in the given Clint package."
-  (let ((package (if (typep designator 'cl-package)
-                     designator
-                     (cl-find-package designator))))
-    (with-slots (syms) package
-      (or (gethash name syms)
-          (setf (gethash name syms)
-                (make-instance 'cl-symbol :name name :package package))))))
+(defun cl-intern (name &optional (designator (global-var ^'*package*))
+			         (internal (eq (cl-find-package designator)
+					       (cl-find-package (global-var ^'*package*)))))
+  "Look up the symbol named by NAME in the given package. The
+   argument INTERNAL is if it is possible to look at the internal
+   symbols in the package."
+  (let* ((package (cl-find-package designator))
+	 (sym (gethash name (package-syms package))))
+    (cond (sym (if (or internal (member sym (cl-package-externals package)))
+		   sym
+		   (error "The symbol ~A is not external in the package ~A"
+			  sym package)))
+	  (internal (setf (gethash name (package-syms package))
+			  (make-instance 'cl-symbol :package package :name name)))
+	  (:else (error "No symbol with the name ~A found in the package ~A"
+			name package)))))
 
 (defmethod print-object :before ((sym cl-symbol) s)
   "When printing a Clint symbol, if the symbols' package is not the

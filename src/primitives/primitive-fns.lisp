@@ -39,10 +39,10 @@
   "Returns the package that has the given name."
   (cl-find-package name))
 
-(defprimitive-fn intern (&rest args)
+(defprimitive-fn intern (name &optional package)
   "Return a symbol in the given package that has the given name as
    its name. If no such symbol already exists, a new one is created."
-  (apply #'cl-intern args))
+  (cl-intern name package))
 
 (defprimitive-fn make-package (name)
   "Create a new package with the given name."

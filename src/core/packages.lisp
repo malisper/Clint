@@ -13,7 +13,7 @@
          :documentation "The symbols contained in the package.")
    (nicks :initarg :nicks :accessor cl-package-nicks :initform '()
 	  :documentation "The nicknames for the package.")
-   (externals :initarg :cl-package-externals :initform (make-hash-table :test #'equal)
+   (externals :initarg :externals :accessor cl-package-externals :initform (make-hash-table :test #'equal)
 	      :documentation "A list of all of the external symbols."))
   (:documentation "A Clint package."))
 
@@ -28,3 +28,18 @@
   (if (typep name 'cl-package)
       name
       (gethash name *packages*)))
+
+(defun lookup-symbol (name designator &optional internal)
+  "Look up the symbol named by NAME in the given package. The
+   argument INTERNAL is if it is possible to look at the internal
+   symbols in the package."
+  (let* ((package (cl-find-package designator))
+	 (sym (gethash name (package-syms package))))
+    (cond (sym (if (or internal (member sym (cl-package-externals package)))
+		   sym
+		   (error "The symbol ~A is not external in the package ~A"
+			  sym package)))
+	  (internal (setf (gethash name (package-syms package))
+			  (make-instance 'cl-symbol :package package :name name)))
+	  (:else (error "No symbol with the name ~A found in the package ~A"
+			sym package)))))
