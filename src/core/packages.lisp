@@ -13,6 +13,8 @@
          :documentation "The symbols contained in the package.")
    (nicks :initarg :nicks :accessor cl-package-nicks :initform '()
 	  :documentation "The nicknames for the package.")
+   (using :initarg :using :accessor cl-package-using :initform '()
+          :documentation "A list of all of the packages being used by this one.")
    (externals :initarg :externals :accessor cl-package-externals :initform (make-hash-table :test #'equal)
 	      :documentation "A list of all of the external symbols."))
   (:documentation "A Clint package."))
