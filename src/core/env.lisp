@@ -18,13 +18,21 @@
           (assoc var e :test #'equal))
         env))
 
+(defun lookup (var env denv)
+  "Look up the value of VAR in either the ENV or the DENV depending
+   on whether it is dynamic or not."
+  ;; The test for cl-symbol is there because it is possible it is a
+  ;; list such as (setf foo).
+  (if (and (typep var 'cl-symbol) (cl-symbol-special var))
+      (cl-boundp var denv)
+      (cl-boundp var env)))
+
 (defun binding (var env denv)
   "Looks up the value of the variable VAR in the enviornment ENV.
    The return value is a list containing VAR as the first element and
    its value as the second. This works for both the variable
    environment and the function environment."
-  (or (cl-boundp var env)
-      (cl-boundp var denv)
+  (or (lookup var env denv)
       (error "Unbound variable or procedure ~A." var)))
 
 (defun val (var env &optional (denv env))
@@ -36,7 +44,7 @@
   "Sets the value of VAR in the given environment to VAL. If the
    variable VAR is unbound. It will be added to the global
    environment (the last frame of the environment passed in)."
-  (let ((binding (or (cl-boundp var env) (cl-boundp var denv))))
+  (let ((binding (lookup var env denv)))
     (if binding
         (setf (cadr binding) val)
         (progn (push (list var val) (car (last denv)))

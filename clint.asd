@@ -10,8 +10,8 @@
 			     (:file "helper")
 			     (:module "core"
 				      :components ((:file "docs")
-						   (:file "env")
 						   (:file "syms")
+						   (:file "env")
 						   (:file "packages")
 						   (:file "intern")
 						   (:file "fns")

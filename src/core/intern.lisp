@@ -30,7 +30,9 @@
 					              :nicks (list "CL")))
 
 (setf (gethash "*PACKAGE*" (package-syms (cl-find-package "CL")))
-      (make-instance 'cl-symbol :name "*PACKAGE*" :package (cl-find-package "CL")))
+      (make-instance 'cl-symbol
+        :name "*PACKAGE*" :package (cl-find-package "CL")
+        :special t))
 
 (setf (global-var (gethash "*PACKAGE*" (package-syms (cl-find-package "CL"))))
       (cl-find-package "CL"))
@@ -55,13 +57,12 @@
 	  (:else (error "No symbol with the name ~A found in the package ~A"
 			name package)))))
 
-(defmethod print-object :before ((sym cl-symbol) s)
-  "When printing a Clint symbol, if the symbols' package is not the
-   same as the current package, prepend the package name to it."
-  (let ((current-package (global-var ^'*package*)))
-    (with-slots (package) sym
-      (if package
-          (unless (eq package current-package)
-            (format s "~A::" (cl-package-name package)))
-          (format s "#:")))))
-
+;; (defmethod print-object :before ((sym cl-symbol) s)
+;;   "When printing a Clint symbol, if the symbols' package is not the
+;;    same as the current package, prepend the package name to it."
+;;   (let ((current-package (global-var ^'*package*)))
+;;     (with-slots (package) sym
+;;       (if package
+;;           (unless (eq package current-package)
+;;             (format s "~A::" (cl-package-name package)))
+;;           (format s "#:")))))
