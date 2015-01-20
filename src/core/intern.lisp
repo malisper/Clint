@@ -57,6 +57,19 @@
 	  (:else (error "No symbol with the name ~A found in the package ~A"
 			name package)))))
 
+(defun find-accessible-symbol (name package &optional (visited nil))
+  "Determine if the symbol named by NAME is accessible from PACKAGE
+   and if so return it. Visited is a list of all of the packages
+   visited so far."
+  ;; If we haven't visited any packages so far we can return an
+  ;; internal symbol.
+  (or (let ((sym (gethash name package)))
+        (and (or (null visited) (gethash sym (cl-package-externals package)))
+             sym))
+      (some (lambda (pack)
+              (find-accessible-symbol name pack (cons package visited)))
+            (cl-package-using package))))
+
 (defmethod print-object :before ((sym cl-symbol) s)
   "When printing a Clint symbol, if the symbols' package is not the
    same as the current package, prepend the package name to it."
