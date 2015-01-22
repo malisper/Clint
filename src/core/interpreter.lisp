@@ -64,13 +64,23 @@
   "Adds a progn to a list of expressions."
   (cons ^'progn exps))
 
-(defun cl-apply (f args &optional (env *env*) (fenv *fenv*) (denv *denv*))
-  "Apply a function or symbol to the arguments, in the variable
-   environment ENV and function environment FENV."
-  (etypecase f
-    (prim-fn   (apply (prim-code f) args))
-    (lambda-fn (multiple-value-bind
-                     (new-env new-denv)
-                     (extend-envs (fn-env f) denv (fn-args f) args)
-                 (cl-eval (fn-code f) new-env (fn-fenv f) new-denv)))
-    (cl-symbol (cl-apply (val f fenv) args env fenv))))
+(defgeneric cl-apply (f args &optional env fenv denv)
+  (:documentation
+   "Apply the Clint procedure F to the given arguments in the given
+   environments."))
+
+(defmethod cl-apply ((f prim-fn) args &optional env fenv denv)
+  "Apply the primitive procedure to the arguments."
+  (declare (ignore env fenv denv))
+  (apply (prim-code f) args))
+
+(defmethod cl-apply ((f lambda-fn) args &optional env fenv denv)
+  "Apply the Clint lambda function to the arguments."
+  (declare (ignore env fenv))
+  (multiple-value-bind (new-env new-denv)
+                       (extend-envs (fn-env f) denv (fn-args f) args)
+    (cl-eval (fn-code f) new-env (fn-fenv f) new-denv)))
+
+(defmethod cl-apply ((f cl-symbol) args &optional env fenv denv)
+  "Apply a symbol as a function."
+  (cl-apply (global-fn f) args env fenv denv))
