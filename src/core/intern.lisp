@@ -74,7 +74,7 @@
   "When printing a Clint symbol, if the symbols' package is not the
    same as the current package, prepend the package name to it."
   (let ((current-package (global-var ^'*package*)))
-    (with-slots (package) sym
+    (let ((package (cl-symbol-package sym)))
       (if package
           (unless (eq package current-package)
             (format s "~A::" (cl-package-name package)))

@@ -191,7 +191,7 @@
 
 (defprimitive-fn (setf get) (val symbol indicator)
   "Set the value of INDICATOR in SYMBOLS's plist."
-  (with-slots (plist) symbol
+  (let ((plist (cl-symbol-plist symbol)))
     (if (member indicator plist)
 	(setf (cadr (member indicator plist)) val)
 	(progn (setf plist (list* indicator val plist))
