@@ -15,6 +15,14 @@
         finally (return (values (cons lexicals env)
                                 (cons dynamics denv)))))
 
+(defmacro with-extend-envs (env fenv args vals &body body)
+  "Given a list of arguments and values, evaluate the body with the
+   lexical and dynamic environments extended properly."
+  (let ((new-env (gensym)) (new-denv (gensym)))
+    `(multiple-value-bind (,new-env ,new-denv) (extend-envs ,env *denv* ,args ,vals)
+       (let ((*env* ,new-env) (*fenv* ,fenv) (*denv* ,new-denv))
+         ,@body))))
+
 (defparameter *lambda-list-keywords* ^'(&rest &optional))
 
 (defgeneric bind (args vals kind)

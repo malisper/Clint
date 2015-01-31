@@ -5,7 +5,7 @@
   `(progn
      ,(when (stringp (car body))
 	`(setf (cl-doc ^',name ^'function) ,(car body)))
-     (setf (global-fn ^',name)
+     (setf (val-fn ^',name)
            (make-instance 'prim-fn
 	     :prim-code (lambda ,args ,@body)))))
 
@@ -14,7 +14,7 @@
   `(progn
      ,(when (stringp (car body))
         `(setf (cl-doc ^',name ^'function) ,(car body)))
-     (setf (global-fn ^',name)
+     (setf (val-fn ^',name)
            (make-instance 'macro
              :macro-fn (make-instance 'prim-fn
                          :prim-code (lambda ,args ,@body))))))
