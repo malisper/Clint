@@ -72,9 +72,9 @@
 (defmethod print-object :before ((sym cl-symbol) s)
   "When printing a Clint symbol, if the symbols' package is not the
    same as the current package, prepend the package name to it."
-  (let ((current-package (global-var ^'*package*)))
-    (let ((package (cl-symbol-package sym)))
-      (if package
-          (unless (eq package current-package)
-            (format s "~A::" (cl-package-name package)))
-          (format s "#:")))))
+  (let ((current-package (val ^'*package*))
+        (package (cl-symbol-package sym)))
+    (if package
+        (unless (eq package current-package)
+          (format s "~A::" (cl-package-name package)))
+      (format s "#:"))))
