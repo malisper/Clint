@@ -166,7 +166,9 @@
 (defun eval-read (stream char)
   "Evaluates the next expression read in."
   (declare (ignore char))
-  (top-eval (cl-read stream)))
+  ;; Need to evaluate in global environment.
+  (with-extend-envs (last *env*) (last *fenv*) () ()
+    (cl-eval (cl-read stream))))
 
 (defun unreadable-object (stream char)
   "Signals an error."
@@ -189,7 +191,7 @@
 (defun eval-string (str)
   "Read an expression from STR and evaluate it."
   (with-input-from-string (stream str)
-    (top-eval (cl-read stream))))
+    (cl-eval (cl-read stream))))
 
 (defun-cl load cl-load (file)
   "Evaluates all of the expressions in a file."
@@ -197,7 +199,7 @@
     (let ((g (gensym)))
       (loop for exp = (cl-read in nil g)
             until (eq g exp)
-            do (top-eval exp)))))
+            do (cl-eval exp)))))
 
 (defun repl ()
   "A REPL for Clint."
@@ -206,7 +208,7 @@
       (format t "~&=> ")
       (with-simple-restart (cl-repl "Return to Clint's repl.")
         (setf cl-- (cl-read))
-        (shiftf cl-*** cl-** cl-* (top-eval cl--))
+        (shiftf cl-*** cl-** cl-* (cl-eval cl--))
         (shiftf cl-+++ cl-++ cl-+ cl--)
         (format t "~&~A" cl-*)
         cl-*))))

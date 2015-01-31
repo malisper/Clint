@@ -4,9 +4,9 @@
 
 (in-package :clint)
 
-(defvar *env*  (list '()) "The global variable environment.")
-(defvar *fenv* (list '()) "The global function environment.")
-(defvar *denv* (list '()) "The global dynamic variable environment.")
+(defvar *env*  (list '()) "The current variable environment.")
+(defvar *fenv* (list '()) "The current function environment.")
+(defvar *denv* (list '()) "The current dynamic variable environment.")
 
 (defun cl-boundp (var env)
   "Is this variable bound in the given environment? If it is return
@@ -18,50 +18,55 @@
           (assoc var e :test #'equal))
         env))
 
-(defun lookup (var env denv)
-  "Look up the value of VAR in either the ENV or the DENV depending
-   on whether it is dynamic or not."
-  ;; The test for cl-symbol is there because it is possible it is a
-  ;; list such as (setf foo).
-  (if (and (typep var 'cl-symbol) (cl-symbol-special var))
-      (cl-boundp var denv)
-      (cl-boundp var env)))
+(defun lookup (var)
+  "Look up the value of VAR in either the global environment or
+   lexical environment depending on whether it is special or not."
+  (if (cl-symbol-special var)
+      (cl-boundp var *denv*)
+      (cl-boundp var *env*)))
 
-(defun binding (var env denv)
-  "Looks up the value of the variable VAR in the enviornment ENV.
-   The return value is a list containing VAR as the first element and
-   its value as the second. This works for both the variable
-   environment and the function environment."
-  (or (lookup var env denv)
-      (error "Unbound variable or procedure ~A." var)))
+(defun lookup-fn (fn)
+  "Look up the function named by FN."
+  (cl-boundp fn *fenv*))
 
-(defun val (var env &optional (denv env))
-  "Look up the value of VAR in the environment ENV. This will work
-   for both the variable environment and the function environment."
-  (cadr (binding var env denv)))
+(defun binding (var)
+  "Look up the current value of VAR. Returns a pair containing the
+   variable its value. Signals an error if there is no such variable."
+  (or (lookup var) (error "Unbound variable ~A." var)))
 
-(defun (setf val) (val var env &optional (denv env))
-  "Sets the value of VAR in the given environment to VAL. If the
-   variable VAR is unbound. It will be added to the global
-   environment (the last frame of the environment passed in)."
-  (let ((binding (lookup var env denv)))
+(defun binding-fn (fn)
+  "Look up the current value of FN. Returns a pair containing the
+   function name and its value. Signals an error if there is no such
+   function."
+  (or (lookup-fn fn) (error "Unbound function ~A." fn)))
+
+(defun val (var)
+  "Look up the current value of VAR."
+  (cadr (binding var)))
+
+(defun val-fn (fn)
+  "Look up the function associated with the given function name."
+  (cadr (binding-fn fn)))
+
+(defun (setf val) (val var)
+  "Sets the value of VAR in the current environment to VAL. If the
+   variable VAR is unbound. It will be added to the dynamic
+   environment if it is special. Otherwise it will be added to the
+   global lexical environment."
+  (let ((binding (lookup var)))
     (if binding
         (setf (cadr binding) val)
-        (progn (push (list var val) (car (last denv)))
+        (progn (if (cl-symbol-special var)
+                   (push (list var val) (car (last *denv*)))
+                   (push (list var val) (car (last *env*))))
                val))))
 
-(defun global-var (var)
-  "Looks up the value of the global variable named by VAR."
-  (val var *env* *denv*))
-
-(defun (setf global-var) (val var)
-  "Sets the value of VAR to VAL in the global variable environment."
-  (setf (val var *env* *denv*) val))
-
-(defun global-fn (name)
-  "Looks up the value of the global function named by NAME."
-  (val name *fenv*))
-
-(defun (setf global-fn) (val name)
-  "Sets the value of NAME to VAL in the global function environment."
-  (setf (val name *fenv*) val))
+(defun (setf val-fn) (val fn)
+  "Sets the function associated with FN in the current environment to
+   VAL. If the function is currently undefined, it is added to the
+   global fn environment."
+  (let ((binding (lookup-fn fn)))
+    (if binding
+        (setf (cadr binding) val)
+        (progn (push (list fn val) (car (last *fenv*)))
+               val))))

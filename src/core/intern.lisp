@@ -11,10 +11,9 @@
       (declare (ignore char))
       `(symbols->cl-symbols ,(read stream t nil t) "CL"))))
 
-;; The procedure global-var needs to be used here because
-;; cl-defparameter using the ^ reader macro which in turn uses
-;; symbols->cl-symbols.
-(defun symbols->cl-symbols (code &optional (package (global-var ^'*package*)))
+;; The procedure val needs to be used here because cl-defparameter
+;; using the ^ reader macro which in turn uses symbols->cl-symbols.
+(defun symbols->cl-symbols (code &optional (package (val ^'*package*)))
   "Converts all symbols in the tree CODE, into Clint symbols. These
    symbols will belong to PACKAGE which defaults to the current value
    of the Clint variable *package*."
@@ -34,17 +33,17 @@
         :name "*PACKAGE*" :package (cl-find-package "CL")
         :special t))
 
-(setf (global-var (gethash "*PACKAGE*" (package-syms (cl-find-package "CL"))))
+(setf (val (gethash "*PACKAGE*" (package-syms (cl-find-package "CL"))))
       (cl-find-package "CL"))
 
-(defun cl-intern (name &optional (designator (global-var ^'*package*)) internal)
+(defun cl-intern (name &optional (designator (val ^'*package*)) internal)
   "Look up the symbol named by NAME in the given package. The
    argument INTERNAL is if it is possible to look at the internal
    symbols in the package."
   (let* ((package (cl-find-package designator))
 	 (sym (gethash name (package-syms package)))
 	 ;; I want to get rid of the following hack.
-	 (current-package (eq package (global-var (gethash "*PACKAGE*" (package-syms (cl-find-package "CL")))))))
+	 (current-package (eq package (val (gethash "*PACKAGE*" (package-syms (cl-find-package "CL")))))))
     (cond (sym (if (or internal
 		       current-package
 		       (gethash sym (cl-package-externals package)))
@@ -73,7 +72,7 @@
 (defmethod print-object :before ((sym cl-symbol) s)
   "When printing a Clint symbol, if the symbols' package is not the
    same as the current package, prepend the package name to it."
-  (let ((current-package (global-var ^'*package*)))
+  (let ((current-package (val ^'*package*)))
     (with-slots (package) sym
       (if package
           (unless (eq package current-package)

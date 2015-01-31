@@ -29,7 +29,7 @@
 
 (defprimitive-fn eval (exp)
   "Evals a list as code."
-  (top-eval exp))
+  (cl-eval exp))
 
 (defprimitive-fn package-name (pack)
   "Look up the name of the given package."
@@ -85,24 +85,25 @@
 
 (defprimitive-fn fdefinition (name)
   "Returns the global procedure named by NAME."
-  (global-fn name))
+  (val-fn name))
 
 (defprimitive-fn (setf fdefinition) (val name)
   "Set the global procedure named by NAME to VAL."
-  (setf (global-fn name) val))
+  (setf (val-fn name) val))
 
 (defprimitive-fn macro-function (name)
   "Returns the procedure used for macroexpansion of the macro named by
    NAME."
-  (let ((fn (val name *fenv*)))
+  (let ((fn (val-fn name)))
     (if (typep fn 'macro)
         fn
         nil)))
 
 (defprimitive-fn (setf macro-function) (val name)
   "Sets the macro-function for NAME."
-  (setf (val name *fenv*) (make-instance 'macro
-                            :macro-fn val)))
+  (setf (val-fn name)
+        (make-instance 'macro
+                       :macro-fn val)))
 
 (defprimitive-fn evenp (n)
   "Is this number even?"
@@ -171,7 +172,7 @@
   (apply #'cl-set-macro-character
 	 char
 	 (lambda (&rest args)
-	   (cl-apply fn args *env* *fenv*))
+	   (cl-apply fn args))
 	 args))
 
 (defprimitive-fn set-dispatch-macro-character (char subchar fn &rest args)
