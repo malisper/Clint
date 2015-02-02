@@ -19,12 +19,20 @@
              :macro-fn (make-instance 'prim-fn
                          :prim-code (lambda ,args ,@body))))))
 
-(defmacro defun-cl (name icl-name args &body body)
-  "Define a procedure which is both a ICL procedure named by ICL-NAME
-   and a Clint primiive named by NAME."
-  `(progn (defun ,icl-name ,args ,@body)
-	  ,(let ((g (gensym)))
-	     `(defprimitive-fn ,name (&rest ,g)
-		,(when (stringp (car body))
-		   (car body))
-		(apply #',icl-name ,g)))))
+(defmacro defun-cl (names args &body body)
+  "Define a Clint primitive and a ICL procedure at the same time. If
+   NAMES is a list, the first element is the Clint primitive name and
+   the seconds is the ICL procedure name. If it is a single symbol,
+   that becomes the Clint primitive name and the ICL procedure name
+   becomes that with 'cl-' prepended to the front."
+  ;; First extract the names.
+  (multiple-value-bind (clint-name icl-name)
+                       (if (listp names)
+                           (values-list names)
+                           (values names (symb 'cl- names)))
+    `(progn (defun ,icl-name ,args ,@body)
+            ,(let ((g (gensym)))
+               `(defprimitive-fn ,clint-name (&rest ,g)
+                  ,(when (stringp (car body))
+                     (car body))
+                  (apply #',icl-name ,g))))))

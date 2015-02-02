@@ -26,3 +26,12 @@
 	((atom tree) (funcall f tree))
 	(:else (cons (maptree f (car tree))
 		     (maptree f (cdr tree))))))
+
+(defun mkstr (&rest args)
+  "Returns the string representing all of the arguments."
+  (with-output-to-string (*standard-output*)
+    (mapc #'princ args)))
+
+(defun symb (&rest args)
+  "Returns a symbol representing all of the arguments."
+  (values (intern (apply #'mkstr args))))
