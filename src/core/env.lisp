@@ -4,8 +4,11 @@
 
 (in-package :clint)
 
-(defvar *env*  (list '()) "The current variable environment.")
-(defvar *fenv* (list '()) "The current function environment.")
+(defvar *global-env* (list '()) "The global variable environment.")
+(defvar *global-fenv* (list '()) "The global function environment.")
+
+(defvar *env*  *global-env* "The current variable environment.")
+(defvar *fenv* *global-fenv* "The current function environment.")
 (defvar *denv* (list '()) "The current dynamic variable environment.")
 
 (defun cl-boundp (var env)

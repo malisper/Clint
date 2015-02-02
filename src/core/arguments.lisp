@@ -23,6 +23,11 @@
        (let ((*env* ,new-env) (*fenv* ,fenv) (*denv* ,new-denv))
          ,@body))))
 
+(defmacro with-global-env (&body body)
+  "Evaluate body within the global lexical Clint environment."
+  `(with-extend-envs *global-env* *global-fenv* '() '()
+     ,@body))
+
 (defparameter *lambda-list-keywords* ^'(&rest &optional))
 
 (defgeneric bind (args vals kind)

@@ -63,7 +63,8 @@
 
 (defmethod cl-apply ((f prim-fn) args)
   "Apply the primitive procedure to the arguments."
-  (apply (prim-code f) args))
+  (with-global-env
+    (apply (prim-code f) args)))
 
 (defmethod cl-apply ((f lambda-fn) args)
   "Apply the Clint lambda function to the arguments."
@@ -72,4 +73,5 @@
 
 (defmethod cl-apply ((f cl-symbol) args)
   "Apply a symbol as a function."
-  (cl-apply (val-fn f) args))
+  (with-global-env
+    (cl-apply (val-fn f) args)))

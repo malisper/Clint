@@ -77,4 +77,4 @@
     (if package
         (unless (eq package current-package)
           (format s "~A::" (cl-package-name package)))
-      (format s "#:"))))
+        (format s "#:"))))

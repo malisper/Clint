@@ -167,7 +167,7 @@
   "Evaluates the next expression read in."
   (declare (ignore char))
   ;; Need to evaluate in global environment.
-  (with-extend-envs (last *env*) (last *fenv*) () ()
+  (with-global-env
     (cl-eval (cl-read stream))))
 
 (defun unreadable-object (stream char)
