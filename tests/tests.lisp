@@ -100,7 +100,12 @@
   (assert-eql-cl 120 "(apply (lambda (w x y z) (* w x y z))
                                        2 3 '(4 5))")
   (assert-eql-cl 15 "(apply #'+ '(1 2 3 4 5))")
-  (assert-eql-cl 15 "(apply '+  '(1 2 3 4 5))"))
+  (assert-eql-cl 15 "(apply '+  '(1 2 3 4 5))")
+  ;; Testing that apply keeps the dynamic environment.
+  (assert-true-cl
+   "(let ((foo (lambda () *gensym-counter*)))
+      (let ((*gensym-counter* 100000000))
+        (eql (apply foo '()) 100000000)))"))
 
 (deftest eval (appliers)
   (assert-eql-cl 8 "(eval '(+ 3 5))")
