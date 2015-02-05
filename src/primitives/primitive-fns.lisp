@@ -18,6 +18,14 @@
   "Divides all of the arguments after the first, from the first."
   (apply #'/ args))
 
+(defprimitive-fn exp (&rest args)
+  "Raise e to the power of the argument."
+  (apply #'exp args))
+
+(defprimitive-fn expt (&rest args)
+  "Raise the first argument to the power of the second argument."
+  (apply #'expt args))
+
 (defprimitive-fn funcall (f &rest args)
   "Calls the procedure F on the arguments ARGS."
   (cl-apply f args))
