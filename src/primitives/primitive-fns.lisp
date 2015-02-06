@@ -26,6 +26,18 @@
   "Raise the first argument to the power of the second argument."
   (apply #'expt args))
 
+(defprimitive-fn sin (&rest args)
+  "Take the sine of the argument."
+  (apply #'sin args))
+
+(defprimitive-fn cos (&rest args)
+  "Take the cosine of the argument."
+  (apply #'cos args))
+
+(defprimitive-fn tan (&rest args)
+  "Take the tangent of the argument."
+  (apply #'tan args))
+
 (defprimitive-fn funcall (f &rest args)
   "Calls the procedure F on the arguments ARGS."
   (cl-apply f args))
