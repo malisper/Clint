@@ -2,41 +2,15 @@
 
 (in-package :clint)
 
-(defprimitive-fn + (&rest args)
-  "Sums all of the arguments."
-  (apply #'+ args))
-
-(defprimitive-fn - (&rest args)
-  "Subtracts every number after the first from the first."
-  (apply #'- args))
-
-(defprimitive-fn * (&rest args)
-  "Multiplies all of the arguments."
-  (apply #'* args))
-
-(defprimitive-fn / (&rest args)
-  "Divides all of the arguments after the first, from the first."
-  (apply #'/ args))
-
-(defprimitive-fn exp (&rest args)
-  "Raise e to the power of the argument."
-  (apply #'exp args))
-
-(defprimitive-fn expt (&rest args)
-  "Raise the first argument to the power of the second argument."
-  (apply #'expt args))
-
-(defprimitive-fn sin (&rest args)
-  "Take the sine of the argument."
-  (apply #'sin args))
-
-(defprimitive-fn cos (&rest args)
-  "Take the cosine of the argument."
-  (apply #'cos args))
-
-(defprimitive-fn tan (&rest args)
-  "Take the tangent of the argument."
-  (apply #'tan args))
+(add-prim '+ "Sums all of the arguments.")
+(add-prim '- "Subtracts every number after the first from the first.")
+(add-prim '* "Multiplies all of the arguments.")
+(add-prim '/ "Divides all of the arguments after the first, from the first.")
+(add-prim 'exp "Raise e to the power of the argument.")
+(add-prim 'expt "Raise the first argument to the power of the second argument.")
+(add-prim 'sin "Take the sine of the argument.")
+(add-prim 'cos "Take the cosine of the argument.")
+(add-prim 'tan "Take the tangent of the argument.")
 
 (defprimitive-fn funcall (f &rest args)
   "Calls the procedure F on the arguments ARGS."

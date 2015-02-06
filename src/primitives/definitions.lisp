@@ -36,3 +36,13 @@
                   ,(when (stringp (car body))
                      (car body))
                   (apply #',icl-name ,g))))))
+
+(defun add-prim (name &optional doc)
+  "Adds the primitive named by NAME to the interpreter. NAME should be
+   a symbol which will serve as both the Clint name and the symbol
+   will be applied to the arguments to implement the primitve."
+  (setf (val-fn ^name)
+        (make-instance 'prim-fn
+          :prim-code (lambda (&rest args) (apply name args))))
+  (when doc
+    (setf (cl-doc ^name ^'function) doc)))
