@@ -73,19 +73,18 @@
   (or (internal name package)
       (inherited name package)))
 
-(defun lookup-symbol (name package &optional internal)
+(defun lookup-symbol (name designator)
   "Lookup the symbol with the given name in the given package.
-   INTERNAL should be true if the symbol does not have to be
-   external (equivalent to using double colon notation). Otherwise
-   this acts like signal colon notation."
-  (let ((sym (accessible name package)))
+   This acts like single colon notation."
+  (let* ((package (cl-find-package designator))
+         (sym (accessible name package)))
     (and sym
-         (or (external sym package)
-             internal)
+         (external sym package)
          sym)))
 
 (defun cl-intern (name &optional (designator (current-package)))
-  "Intern the symbol named by NAME in the given package."
+  "Intern the symbol named by NAME in the given package. This acts
+   like double colon notation."
   (let ((package (cl-find-package designator)))
     (if (not package)
         (error "Cannot find package ~A" designator)
