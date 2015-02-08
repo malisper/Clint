@@ -31,9 +31,8 @@
   "Define all of the cxrs nested from 1 to N."
   `(progn
      ,@(mapcar (lambda (cxr)
-                 `(progn (defprimitive-fn ,cxr (x)
-                           ,(format nil "Return the ~A of X." cxr)
-                           (,cxr x))
+                 `(progn (add-prim ',cxr
+                           ,(format nil "Return the ~A of X." cxr))
                          (defprimitive-fn (setf ,cxr) (val x)
                            ,(format nil "Set the value of the ~A of X to VAL." cxr)
                            (setf (,cxr x) val))))
