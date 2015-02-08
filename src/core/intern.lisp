@@ -19,7 +19,7 @@
    of the Clint variable *package*."
   (maptree (lambda (x)
              (if (typep x 'symbol)
-                 (cl-intern (symbol-name x) package t)
+                 (cl-intern (symbol-name x) package)
                  x))
            code))
 
@@ -62,7 +62,9 @@
     (some (lambda (p)
             (let ((sym (or (internal name p)
                            (inherited name p (cons package seen)))))
-              (and sym (external sym p))))
+              ;; We need to test for sym then pass it to external
+              ;; but still return it if everything is true.
+              (and sym (external sym p) sym)))
           (cl-package-using package))))
 
 (defun accessible (name package)
@@ -71,24 +73,25 @@
   (or (internal name package)
       (inherited name package)))
 
-(defun cl-intern (name &optional (designator (current-package)) internal)
-  "Look up the symbol named by NAME in the given package. The
-   argument INTERNAL is if it is possible to look at the internal
-   symbols in the package."
-  (let* ((package (cl-find-package designator))
-	 (sym (gethash name (package-syms package)))
-	 (current-package-p (eq package (current-package))))
-    (cond (sym (if (or internal
-		       current-package-p
-		       (gethash sym (cl-package-externals package)))
-		   sym
-		   (error "The symbol ~A is not external in the package ~A"
-			  sym package)))
-	  ((or internal current-package-p)
-	   (setf (gethash name (package-syms package))
-		 (make-instance 'cl-symbol :package package :name name)))
-	  (:else (error "No symbol with the name ~A found in the package ~A"
-			name package)))))
+(defun lookup-symbol (name package &optional internal)
+  "Lookup the symbol with the given name in the given package.
+   INTERNAL should be true if the symbol does not have to be
+   external (equivalent to using double colon notation). Otherwise
+   this acts like signal colon notation."
+  (let ((sym (accessible name package)))
+    (and sym
+         (or (external sym package)
+             internal)
+         sym)))
+
+(defun cl-intern (name &optional (designator (current-package)))
+  "Intern the symbol named by NAME in the given package."
+  (let ((package (cl-find-package designator)))
+    (if (not package)
+        (error "Cannot find package ~A" designator)
+        (or (accessible name package)
+            (setf (gethash name (package-syms package))
+                  (make-instance 'cl-symbol :name name :package package))))))
 
 (defun find-accessible-symbol (name package &optional (visited nil))
   "Determine if the symbol named by NAME is accessible from PACKAGE
