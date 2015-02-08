@@ -33,24 +33,31 @@
         :name "*PACKAGE*" :package (cl-find-package "CL")
         :special t))
 
-(setf (val (gethash "*PACKAGE*" (package-syms (cl-find-package "CL"))))
-      (cl-find-package "CL"))
+(defun current-package ()
+  "Return the current package."
+  (val (gethash "*PACKAGE*" (package-syms (cl-find-package "CL")))))
 
-(defun cl-intern (name &optional (designator (val ^'*package*)) internal)
+(defun (setf current-package) (val)
+  "Set the current-package."
+  (setf (val (gethash "*PACKAGE*" (package-syms (cl-find-package "CL"))))
+        val))
+
+(setf (current-package) (cl-find-package "CL"))
+
+(defun cl-intern (name &optional (designator (current-package)) internal)
   "Look up the symbol named by NAME in the given package. The
    argument INTERNAL is if it is possible to look at the internal
    symbols in the package."
   (let* ((package (cl-find-package designator))
 	 (sym (gethash name (package-syms package)))
-	 ;; I want to get rid of the following hack.
-	 (current-package (eq package (val (gethash "*PACKAGE*" (package-syms (cl-find-package "CL")))))))
+	 (current-package-p (eq package (current-package))))
     (cond (sym (if (or internal
-		       current-package
+		       current-package-p
 		       (gethash sym (cl-package-externals package)))
 		   sym
 		   (error "The symbol ~A is not external in the package ~A"
 			  sym package)))
-	  ((or internal current-package)
+	  ((or internal current-package-p)
 	   (setf (gethash name (package-syms package))
 		 (make-instance 'cl-symbol :package package :name name)))
 	  (:else (error "No symbol with the name ~A found in the package ~A"

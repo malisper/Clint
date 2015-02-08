@@ -32,8 +32,8 @@
   `(progn
      ,@(mapcar (lambda (cxr)
                  `(progn (add-prim ',cxr
-                           ,(format nil "Return the ~A of X." cxr))
+                           ,(format nil "Return the ~A of the argument." cxr))
                          (defprimitive-fn (setf ,cxr) (val x)
-                           ,(format nil "Set the value of the ~A of X to VAL." cxr)
+                           ,(format nil "Set the value of the ~A of the argument." cxr)
                            (setf (,cxr x) val))))
                (generate-cxrs n))))
