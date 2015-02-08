@@ -17,7 +17,7 @@
 		   ;; arguments can only refer to values in the
 		   ;; global environment. The only way I can think of
 		   ;; to fix this is to pass the environments to bind.
-		   (list (caar args) (cl-eval (cadar args) *env* *fenv* *denv*)))
+		   (list (caar args) (cl-eval (cadar args))))
 	       (bind (cdr args) '() kind)))
 	(:else (cons (list (if (atom (car args))
 			       (car args)
