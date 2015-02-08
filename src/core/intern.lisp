@@ -44,6 +44,33 @@
 
 (setf (current-package) (cl-find-package "CL"))
 
+(defun internal (name package)
+  "Is there a symbol with the given name that is internal in the
+   given package? If so return it."
+  (gethash name (package-syms package)))
+
+;; This could be more consistent. It accepts a symbol unlike the
+;; others which accept a string.
+(defun external (sym package)
+  "Is the given symbol external in the given package?"
+  (gethash sym (cl-package-externals package)))
+
+(defun inherited (name package &optional seen)
+  "Is there a symbol with the name that is inherited by the given
+   package? If so return it."
+  (unless (member package seen)
+    (some (lambda (p)
+            (let ((sym (or (internal name p)
+                           (inherited name p (cons package seen)))))
+              (and sym (external sym p))))
+          (cl-package-using package))))
+
+(defun accessible (name package)
+  "Is there a symbol with the given name that is accessible in the
+   given package?"
+  (or (internal name package)
+      (inherited name package)))
+
 (defun cl-intern (name &optional (designator (current-package)) internal)
   "Look up the symbol named by NAME in the given package. The
    argument INTERNAL is if it is possible to look at the internal
