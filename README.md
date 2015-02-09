@@ -92,3 +92,15 @@ All of the other code is implemented in the src/libs/ directory. It
 contains Clint level code that acts as a sort of library. This are
 things that can easily be implemented in terms of the primitives that
 are already defined.
+
+Caret Reader Macro
+------------------
+
+The caret reader macro is used throughout the code. The expression
+^(...) is short for (symbols->cl-symbols (...)). The procedure
+symbols->cl-symbols takes an sexp and converts all of the symbols in
+it into cl-symbols (Clint has its own symbol type). This is commonly
+used for primitive macros, which should be generating code with
+cl-symbols in it instead of regular ICL symbols. It also makes it much
+easier to type in Clint symbols. One only needs to type ^'foo to refer
+to the Clint symbol with the name 'foo'.
