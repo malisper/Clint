@@ -47,12 +47,12 @@ procedures cl-eval, cl-apply, and cl-intern are all implemented there.
 
 Primitives:
 
-Primitives are all defined in the src/primitves/ directory.
+Primitives are all defined in the src/primitives/ directory.
 
 Primitive procedures are defined in one of three ways. The simplest
 way is the procedure add-prim. It takes a symbol, uses that as the
 name of the primitive, and also calls the ICL function of that name to
-implement the primitive. This makes calling that primitve from within
+implement the primitive. This makes calling that primitive from within
 Clint the same as calling the ICL procedure of the same name. It is
 useful for procedures taken directly from the ICL such as the
 arithmetic operators.
