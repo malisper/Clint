@@ -37,10 +37,11 @@ roughly the same as calling the procedure without the prefix from
 within Clint. For example, calling 'cl-intern' from the ICL is
 equivalent to calling 'intern' from the Clint repl.
 
-There are currently three exceptions to this convention. The procedure
+There are a couple of exceptions to this convention. The procedure
 'cl-eval-all' for which there is no analog, the procedure 'cl-boundp'
 which behaves differently than 'boundp' does, and 'cl-doc' which is
-the analog of 'documentation'.
+the analog of 'documentation'. Also some object accessors (such as
+cl-package-externals) do not have analogs.
 
 
 Core
