@@ -43,3 +43,7 @@
   (if (listp names)
       (values-list names)
       (values names (symb default names))))
+
+(defun mklist (x)
+  "If X is a list, return it, otherwise return (list x)."
+  (if (listp x) x (list x)))

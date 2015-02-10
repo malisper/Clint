@@ -167,3 +167,16 @@
 (defprimitive-fn symbol-package (x)
   "Return the package of this symbol."
   (cl-symbol-package x))
+
+(defprimitive-fn export (syms &optional (package cl-*package*))
+  "Export SYM from PACKAGE."
+  (dolist (sym (mklist syms))
+    (setf (gethash sym (cl-package-externals (cl-find-package package)))
+	  t))
+  t)
+
+(defprimitive-fn import (syms &optional (package cl-*package*))
+  (dolist (sym (mklist syms))
+    (setf (gethash (cl-symbol-name sym) (package-syms (cl-find-package package)))
+	  sym))
+  t)

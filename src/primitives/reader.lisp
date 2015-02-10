@@ -98,7 +98,9 @@
 		  (return (funcall (cl-get-macro-character char)
 				   stream char)))
 		 (read-colon
-		  (return (strings->num/sym str2 str1)))
+		  (if (= (length str1) 0)
+                      (return (strings->num/sym str2 "KEYWORD" t))
+                      (return (strings->num/sym str2 str1 double-colon))))
 		 (:else
 		  (return (strings->num/sym str1)))))
           (read-colon
@@ -120,8 +122,8 @@
         ;; symbol was not typed in with any package qualifier.
         ((or double-colon (not package-p))
          (cl-intern (string-upcase name) (maybe-upcase package)))
-        (:else (or (lookup-symbol name (maybe-upcase package))
-                   (error "Cannot access symbol ~A:~A" name package)))))
+        (:else (or (lookup-symbol (string-upcase name) (maybe-upcase package))
+                   (error "Cannot access symbol ~A:~A" package name)))))
 
 (defun read-list (stream char)
   "Reads in a list."

@@ -78,11 +78,15 @@
 (defun lookup-symbol (name designator)
   "Lookup the symbol with the given name in the given package.
    This acts like single colon notation."
-  (let* ((package (cl-find-package designator))
-         (sym (accessible name package)))
-    (and sym
-         (external sym package)
-         sym)))
+  (let ((package (cl-find-package designator)))
+    (unless package
+      (error "Package: ~A does not exist" designator))
+    (let ((sym (accessible name package)))
+      (unless sym
+	(error "Cannot find symbol ~A in package ~A" name package))
+      (and sym
+	   (external sym package)
+	   sym))))
 
 (defun cl-intern (name &optional (designator (current-package)))
   "Intern the symbol named by NAME in the given package. This acts
@@ -105,5 +109,5 @@
         (package (cl-symbol-package sym)))
     (cond ((not package) (format s "#:"))
           ((eq package (cl-find-package "KEYWORD")) (format s ":"))
-          (:else (unless (eq package current-package)
+          (:else (unless (eq sym (accessible (cl-symbol-name sym) current-package))
                    (format s "~A::" (cl-package-name package)))))))
