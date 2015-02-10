@@ -169,14 +169,28 @@
   (cl-symbol-package x))
 
 (defprimitive-fn export (syms &optional (package cl-*package*))
-  "Export SYM from PACKAGE."
+  "Export SYMS from PACKAGE."
   (dolist (sym (mklist syms))
     (setf (gethash sym (cl-package-externals (cl-find-package package)))
 	  t))
   t)
 
 (defprimitive-fn import (syms &optional (package cl-*package*))
+  "Import SYMS into PACKAGE."
   (dolist (sym (mklist syms))
     (setf (gethash (cl-symbol-name sym) (package-syms (cl-find-package package)))
 	  sym))
+  t)
+
+(defprimitive-fn use-package (packages &optional (package cl-*package*))
+  "Have PACKAGE inherit all of the external symbols from PACKAGES."
+  (dolist (pack (mklist packages))
+    (pushnew (cl-find-package pack)
+	     (cl-package-using (cl-find-package package))))
+  t)
+
+(defprimitive-fn unintern (sym &optional (package cl-*package*))
+  "Unintern SYM from PACKAGE."
+  (remhash (cl-symbol-name sym)
+	   (package-syms (cl-find-package package)))
   t)
