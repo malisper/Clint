@@ -9,7 +9,7 @@
                              reader macro to the corresponding procedure."))
   (:documentation "A Clint readtable."))
 
-(cl-defparameter *readtable* cl-*readtable* (make-instance 'cl-readtable)
+(cl-defparameter *readtable* (make-instance 'cl-readtable)
   "The current readtable.")
 
 (defun cl-set-macro-character (char fn &optional non-terminating (readtable cl-*readtable*))

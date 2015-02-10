@@ -26,11 +26,8 @@
    that becomes the Clint primitive name and the ICL procedure name
    becomes that with 'cl-' prepended to the front."
   ;; First extract the names.
-  (multiple-value-bind (clint-name icl-name)
-                       (if (listp names)
-                           (values-list names)
-                           (values names (symb 'cl- names)))
-    `(progn (defun ,icl-name ,args ,@body)
+  (multiple-value-bind (clint-name icl-name) (parse-names names)
+      `(progn (defun ,icl-name ,args ,@body)
             ,(let ((g (gensym)))
                `(defprimitive-fn ,clint-name (&rest ,g)
                   ,(when (stringp (car body))

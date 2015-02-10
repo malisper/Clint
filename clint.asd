@@ -9,6 +9,7 @@
                 :components ((:file "package")
 			     (:file "helper")
 			     (:module "core"
+                                      :serial t
 				      :components ((:file "docs")
 						   (:file "syms")
 						   (:file "env")
@@ -19,6 +20,7 @@
 						   (:file "interpreter")
 						   (:file "arguments2")))
 			     (:module "primitives"
+                                      :serial t
 				      :components ((:file "defparameter")
 						   (:file "vars")
 						   (:file "definitions")

@@ -35,3 +35,11 @@
 (defun symb (&rest args)
   "Returns a symbol representing all of the arguments."
   (values (intern (apply #'mkstr args))))
+
+(defun parse-names (names &optional (default 'cl-))
+  "Parses a single name or list of two names. If names is a symbol,
+  return it with DEFAULT prepended to that symbol. If it is a duple,
+  return both parts of it."
+  (if (listp names)
+      (values-list names)
+      (values names (symb default names))))

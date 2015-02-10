@@ -3,11 +3,12 @@
 
 (in-package :clint)
 
-(defmacro cl-defparameter (name icl-name val &optional doc)
+(defmacro cl-defparameter (names val &optional doc)
   "Define a Clint variable. A symbol macro for icl-name will be
    defined which will provide access to the Clint variable."
-  `(progn ,(when doc
-		 `(setf (cl-doc ^',name ^'variable) ,doc))
-          (setf (cl-symbol-special ^',name) t)
-          (setf (val ^',name) ,val)
-          (define-symbol-macro ,icl-name (val ^',name))))
+  (multiple-value-bind (clint-name icl-name) (parse-names names)
+    `(progn ,(when doc
+               `(setf (cl-doc ^',clint-name ^'variable) ,doc))
+            (setf (cl-symbol-special ^',clint-name) t)
+            (setf (val ^',clint-name) ,val)
+            (define-symbol-macro ,icl-name (val ^',clint-name)))))
