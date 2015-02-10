@@ -13,9 +13,9 @@ Getting Started
 
 After loading Clint, the 'repl' procedure will start a repl in which
 you can type expressions and have them be evaluated by Clint. There
-are several files of code meant to be loaded by the interpreter. To do
-this either use (cl-load ".../Clint/src/libs/FILE") from outside the
-Clint repl or (load "...") from within. All of the files in the
+are several files of code meant to be loaded by the interpreter. To
+load them use either (cl-load ".../Clint/src/libs/FILE") from outside
+the Clint repl or (load "...") from within. All of the files in the
 src/libs/ directory need to be loaded this way. I am currently trying
 to find a way to automate this.
 
@@ -74,7 +74,7 @@ procedure at the same time.
 
 There is a macro analog of defprimitive-fn called
 defprimitive-macro. It associates an ICL closure with a macro and will
-call the macro on Clint code to macroexpand the Clint code.
+call the macro on Clint code to macroexpand the it.
 
 See the primitives/definitions.lisp file for the implementation of the
 above procedure and macros.
@@ -100,7 +100,7 @@ The caret reader macro is used throughout the code. The expression
 ^(...) is short for (symbols->cl-symbols (...)). The procedure
 symbols->cl-symbols takes an sexp and converts all of the symbols in
 it into cl-symbols (Clint has its own symbol type). This is commonly
-used for primitive macros, which should be generating code with
-cl-symbols in it instead of regular ICL symbols. It also makes it much
-easier to type in Clint symbols. One only needs to type ^'foo to refer
-to the Clint symbol with the name 'foo'.
+used for primitive macros, which need to generate code with cl-symbols
+in it instead of regular ICL symbols. It also makes it much easier to
+type in Clint symbols. One only needs to type ^'foo to refer to the
+Clint symbol with the name 'foo'.
