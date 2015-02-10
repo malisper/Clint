@@ -7,7 +7,7 @@
 (defun extend-envs (env denv args vals)
   "Extend a given environment. This works for both the variable
    environment and function environment."
-  (loop for pair in (bind args vals ^'regular)
+  (loop for pair in (bind args vals :regular)
         if (cl-symbol-special (car pair))
           collect pair into dynamics
         else
@@ -34,7 +34,7 @@
   (:documentation "Bind the parameters of type KIND (optional, rest,
                    etc) to the given values."))
 
-(defmethod bind (args vals (kind (eql ^'regular)))
+(defmethod bind (args vals (kind (eql :regular)))
   "Bind regular keyword arguments."
   (cond ((null args)
 	 (if (null vals)

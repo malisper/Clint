@@ -87,7 +87,9 @@
 		  (read-char stream)
 		  (throw 'atom (cl-read stream)))
                  (read-colon
-		  (return (strings->num/sym str2 str1 double-colon)))
+		  (if (= (length str1) 0)
+                      (return (strings->num/sym str2 "KEYWORD" t))
+                      (return (strings->num/sym str2 str1 double-colon))))
 		 (:else
 		  (return (strings->num/sym str1)))))
           ((cl-get-macro-character char)

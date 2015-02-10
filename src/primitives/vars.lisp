@@ -11,26 +11,16 @@
 
 (cl-defparameter t ^'t "The truth value.")
 
-(cl-defparameter * nil
-  "The result of the previous expression.")
+(cl-defparameter * nil "The result of the previous expression.")
+(cl-defparameter ** nil "The result of the second to last expression.")
+(cl-defparameter *** nil "The result of the third to last expression.")
 
-(cl-defparameter ** nil
-  "The result of the second to last expression.")
+(cl-defparameter + nil "The previous expression.")
+(cl-defparameter ++ nil "The second to last expression.")
+(cl-defparameter +++ nil "The third to last expression.")
 
-(cl-defparameter *** nil
-  "The result of the third to last expression.")
+(cl-defparameter - nil "The current expression being evaluated.")
 
-(cl-defparameter - nil
-  "The current expression being evaluated.")
-
-(cl-defparameter + nil
-  "The previous expression.")
-
-(cl-defparameter ++ nil
-  "The second to last expression.")
-
-(cl-defparameter +++ nil
-  "The third to last expression.")
 
 ;; There are some problems with making the Clint symbol nil and the
 ;; empty list the same thing.

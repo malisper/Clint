@@ -28,6 +28,8 @@
 (or (cl-find-package "CL") (make-instance 'cl-package :name "COMMON-LISP"
 					              :nicks (list "CL")))
 
+(or (cl-find-package "KEYWORD") (Make-instance 'cl-package :name "KEYWORD"))
+
 (setf (gethash "*PACKAGE*" (package-syms (cl-find-package "CL")))
       (make-instance 'cl-symbol
         :name "*PACKAGE*" :package (cl-find-package "CL")
@@ -89,15 +91,19 @@
     (if (not package)
         (error "Cannot find package ~A" designator)
         (or (accessible name package)
-            (setf (gethash name (package-syms package))
-                  (make-instance 'cl-symbol :name name :package package))))))
+            (let ((sym (make-instance 'cl-symbol :name name :package package)))
+              (setf (gethash name (package-syms package)) sym)
+              ;; Make keywords self evaluating.
+              (when (eq package (cl-find-package "KEYWORD"))
+                (setf (val sym) sym))
+              sym)))))
 
 (defmethod print-object :before ((sym cl-symbol) s)
   "When printing a Clint symbol, if the symbols' package is not the
    same as the current package, prepend the package name to it."
   (let ((current-package (val ^'*package*))
         (package (cl-symbol-package sym)))
-    (if package
-        (unless (eq package current-package)
-          (format s "~A::" (cl-package-name package)))
-        (format s "#:"))))
+    (cond ((not package) (format s "#:"))
+          ((eq package (cl-find-package "KEYWORD")) (format s ":"))
+          (:else (unless (eq package current-package)
+                   (format s "~A::" (cl-package-name package)))))))
