@@ -60,8 +60,9 @@
   (declare (ignore recur-p))
   (loop with str1 = (adjustable-string)
         with str2 = (adjustable-string)
-        with read-colon = nil
-        with escaped    = nil
+        with read-colon   = nil
+        with double-colon = nil
+        with escaped      = nil
         for char = (peek-char nil stream nil nil) do
     (cond ((not char)
            (if eof-error
@@ -76,6 +77,8 @@
 	       (vector-push-extend (read-char stream) str1)))
 	  ((eql char #\:)
 	   (read-char stream)
+           (when read-colon
+             (setf double-colon t))
 	   (setf read-colon t))
           ((whitespace char)
            (cond ((and (empty str1) (empty str2))
@@ -84,7 +87,7 @@
 		  (read-char stream)
 		  (throw 'atom (cl-read stream)))
                  (read-colon
-		  (return (strings->num/sym str2 str1)))
+		  (return (strings->num/sym str2 str1 double-colon)))
 		 (:else
 		  (return (strings->num/sym str1)))))
           ((cl-get-macro-character char)
@@ -101,13 +104,22 @@
 	  (:else
 	   (vector-push-extend (read-char stream) str1)))))
 
-(defun strings->num/sym (name &optional (package cl-*package*))
+(defun maybe-upcase (str)
+  "Upcase STR if it is a string, otherwise return it."
+  (if (stringp str)
+      (string-upcase str)
+      str))
+
+(defun strings->num/sym (name &optional (package cl-*package* package-p)
+                                double-colon)
   "Converts a string to either a number or a Clint symbol."
-  (if (every #'digit-char-p name)
-      (parse-integer name)
-      (cl-intern (string-upcase name) (if (stringp package)
-					  (string-upcase package)
-					  package))))
+  (cond ((every #'digit-char-p name) (parse-integer name))
+        ;; If the package argument was not passed in, that means the
+        ;; symbol was not typed in with any package qualifier.
+        ((or double-colon (not package-p))
+         (cl-intern (string-upcase name) (maybe-upcase package)))
+        (:else (or (lookup-symbol name (maybe-upcase package))
+                   (error "Cannot access symbol ~A:~A" name package)))))
 
 (defun read-list (stream char)
   "Reads in a list."
