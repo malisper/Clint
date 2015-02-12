@@ -34,11 +34,11 @@
         ((null (car xss)) (apply #'append (cdr xss)))
         ('else (cons (caar xss) (apply #'append (cdar xss) (cdr xss))))))
 
-(defun last (xs)
-  "Returns the last cons pair of a list."
-  (if (null (cdr xs))
+(defun last (xs &optional (n 1))
+  "Returns the last N elements of XS."
+  (if (null (nthcdr n xs))
       xs
-      (last (cdr xs))))
+      (last (cdr xs) n)))
 
 (defun nconc (&rest xss)
   "Appends lists together by modifying the tail of each one to point
