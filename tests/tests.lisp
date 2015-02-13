@@ -324,7 +324,13 @@
 
 (deftest last (list-lib)
   (assert-equal-cl '(5) "(last '(1 2 3 4 5))")
-  (assert-equal-cl ^'(c) "(last '(a b c))"))
+  (assert-equal-cl ^'(c) "(last '(a b c))")
+  (assert-equal-cl ^'(d e f) "(last '(a b c d e f) 3)"))
+
+(deftest butlast (list-lib)
+  (assert-equal-cl '(1 2 3 4) "(butlast '(1 2 3 4 5))")
+  (assert-equal-cl ^'(a b) "(butlast '(a b c))")
+  (assert-equal-cl ^'(a b c) "(butlast '(a b c d e f) 3)"))
 
 (deftest nconc (list-lib)
   (assert-equal-cl '((1 2 3 4 5 6 7 8 9)

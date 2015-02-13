@@ -40,6 +40,12 @@
       xs
       (last (cdr xs) n)))
 
+(defun butlast (xs &optional (n 1))
+  "Returns all of the elements of XS except for the last N."
+  (if (null (nthcdr n xs))
+      '()
+      (cons (car xs) (butlast (cdr xs) n))))
+
 (defun nconc (&rest xss)
   "Appends lists together by modifying the tail of each one to point
    to the one after it."
