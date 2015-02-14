@@ -8,3 +8,6 @@
           unintern + - * / exp expt sin cos tan eq eql cons rplacd
           rplaca evenp oddp zerop plusp minusp null not < > <= >= =
           gethash remhash atom))
+
+(export '(let let* cond lambda setf push pop defun defmacro and or
+	  when unless prog1 prog2 incf decf))
