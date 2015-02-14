@@ -16,8 +16,9 @@ you can type expressions and have them be evaluated by Clint. There
 are several files of code meant to be loaded by the interpreter. To
 load them use either (cl-load ".../Clint/src/libs/FILE") from outside
 the Clint repl or (load "...") from within. All of the files in the
-src/libs/ directory need to be loaded this way. I am currently trying
-to find a way to automate this.
+src/libs/ directory need to be loaded this way with exports.lisp being
+loaded last. I am currently trying to find a way to automate this
+step.
 
 
 Definitions
