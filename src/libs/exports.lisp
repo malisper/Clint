@@ -11,3 +11,7 @@
 
 (export '(let let* cond lambda setf push pop defun defmacro and or
 	  when unless prog1 prog2 incf decf))
+
+(export '(member-if member find-if find maplist mapcar mapc mapl list
+	  list* nthcdr equal length append last butlast nconc
+	  identity constantly))
