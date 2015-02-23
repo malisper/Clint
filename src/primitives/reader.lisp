@@ -114,10 +114,13 @@
       (string-upcase str)
       str))
 
+(cl-defparameter *read-base* 10
+  "The current base numbers are read in.")
+
 (defun strings->num/sym (name &optional (package cl-*package* package-p)
                                 double-colon)
   "Converts a string to either a number or a Clint symbol."
-  (cond ((every #'digit-char-p name) (parse-integer name))
+  (cond ((every #'digit-char-p name) (parse-integer name :radix cl-*read-base*))
         ;; If the package argument was not passed in, that means the
         ;; symbol was not typed in with any package qualifier.
         ((or double-colon (not package-p))
@@ -226,5 +229,5 @@
         (setf cl-- (cl-read))
         (shiftf cl-*** cl-** cl-* (cl-eval cl--))
         (shiftf cl-+++ cl-++ cl-+ cl--)
-        (format t "~&~A" cl-*)
+        (format t "~&~W" cl-*)
         cl-*))))
