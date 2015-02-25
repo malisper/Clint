@@ -4,7 +4,8 @@
 
 (in-package :clint-asd)
 
-(defclass clint-file (source-file) ())
+(defclass clint-file (source-file)
+  ((type :initform "lisp")))
 
 (defmethod perform ((o load-op) (file clint-file))
   "Load the file into Clint."
@@ -46,7 +47,7 @@
                                            (:file "primitive-macros" :depends-on ("definitions"))))
                              (:module "libs"
                               :depends-on ("core" "primitives")
-                              :components ((:clint-file "higher-order-fns.lisp")
-                                           (:clint-file "fns.lisp")
-                                           (:clint-file "lists.lisp")
-                                           (:clint-file "exports.lisp")))))))
+                              :components ((:clint-file "higher-order-fns")
+                                           (:clint-file "fns")
+                                           (:clint-file "lists")
+                                           (:clint-file "exports")))))))
