@@ -1,4 +1,19 @@
-(in-package :asdf-user)
+(defpackage :clint-asd
+  (:use :cl :asdf)
+  (:export :cl-file))
+
+(in-package :clint-asd)
+
+(defclass clint-file (source-file) ())
+
+(defmethod perform ((o load-op) (file clint-file))
+  "Load the file into Clint."
+  ;; The Clint package is inaccessible until it is loaded.
+  (funcall (intern "CL-LOAD" "CLINT") (car (input-files o file))))
+
+(defmethod perform ((o compile-op) (file clint-file))
+  "Cannot compile clint files, return nil."
+  nil)
 
 (defsystem "clint"
   :description "A Common Lisp Interpreter."
@@ -28,4 +43,10 @@
                                            (:file "reader" :depends-on ("defparameter" "vars" "misc"))
                                            (:file "cxr")
                                            (:file "primitive-fns" :depends-on ("definitions" "cxr"))
-                                           (:file "primitive-macros" :depends-on ("definitions"))))))))
+                                           (:file "primitive-macros" :depends-on ("definitions"))))
+                             (:module "libs"
+                              :depends-on ("core" "primitives")
+                              :components ((:clint-file "higher-order-fns.lisp")
+                                           (:clint-file "fns.lisp")
+                                           (:clint-file "lists.lisp")
+                                           (:clint-file "exports.lisp")))))))
