@@ -13,13 +13,14 @@
   (funcall (intern "CL-LOAD" "CLINT") (car (input-files o file))))
 
 (defmethod perform ((o compile-op) (file clint-file))
-  "Cannot compile clint files, return nil."
+  "It is currently impossible to compile clint files, so just return nil."
   nil)
 
 (defsystem "clint"
   :description "A Common Lisp Interpreter."
   :version "0.1"
   :author "malisper"
+  :in-order-to ((test-op (test-op :clint-tests)))
   :components ((:module "src"
                 :components ((:file "package")
 			     (:file "helper" :depends-on ("package"))
