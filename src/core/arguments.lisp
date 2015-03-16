@@ -28,7 +28,7 @@
   `(with-extend-envs *global-env* *global-fenv* '() '()
      ,@body))
 
-(defparameter *lambda-list-keywords* ^'(&rest &optional))
+(defparameter *lambda-list-keywords* ^'(&rest &optional &key))
 
 (defgeneric bind (args vals kind)
   (:documentation "Bind the parameters of type KIND (optional, rest,
