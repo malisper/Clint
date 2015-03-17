@@ -4,10 +4,10 @@
 
 (in-package :clint)
 
-(defun extend-envs (env denv args vals)
+(defun extend-envs (env denv parms args)
   "Extend a given environment. This works for both the variable
    environment and function environment."
-  (loop for pair in (bind args vals :regular)
+  (loop for pair in (bind parms args :regular)
         if (cl-symbol-special (car pair))
           collect pair into dynamics
         else
@@ -15,11 +15,11 @@
         finally (return (values (cons lexicals env)
                                 (cons dynamics denv)))))
 
-(defmacro with-extend-envs (env fenv args vals &body body)
+(defmacro with-extend-envs (env fenv parms args &body body)
   "Given a list of arguments and values, evaluate the body with the
    lexical and dynamic environments extended properly."
   (let ((new-env (gensym)) (new-denv (gensym)))
-    `(multiple-value-bind (,new-env ,new-denv) (extend-envs ,env *denv* ,args ,vals)
+    `(multiple-value-bind (,new-env ,new-denv) (extend-envs ,env *denv* ,parms ,args)
        (let ((*env* ,new-env) (*fenv* ,fenv) (*denv* ,new-denv))
          ,@body))))
 
@@ -30,23 +30,23 @@
 
 (defparameter *lambda-list-keywords* ^'(&rest &optional &key))
 
-(defgeneric bind (args vals kind)
+(defgeneric bind (parms args kind)
   (:documentation "Bind the parameters of type KIND (optional, rest,
                    etc) to the given values."))
 
-(defmethod bind (args vals (kind (eql :regular)))
+(defmethod bind (parms args (kind (eql :regular)))
   "Bind regular keyword arguments."
-  (cond ((null args)
-	 (if (null vals)
+  (cond ((null parms)
+	 (if (null args)
 	     '()
 	     (error "Too many values passed in.")))
-	((member (car args) *lambda-list-keywords*)
-	 (bind (cdr args) vals (car args)))
-	((null vals)
+	((member (car parms) *lambda-list-keywords*)
+	 (bind (cdr parms) args (car parms)))
+	((null args)
 	 (error "Not enough values passed in."))
-	(:else (cons (list (car args) (car vals))
-		     (bind (cdr args) (cdr vals) kind)))))
+	(:else (cons (list (car parms) (car args))
+		     (bind (cdr parms) (cdr args) kind)))))
 
-(defmethod bind (args vals (kind (eql ^'&rest)))
+(defmethod bind (parms args (kind (eql ^'&rest)))
   "Bind a rest argument."
-  (list (list (car args) vals)))
+  (list (list (car parms) args)))
