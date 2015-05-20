@@ -9,4 +9,4 @@
                              (:file "tests")))))
 
 (defmethod perform ((op test-op) (c (eql (find-system :clint-tests))))
-  (print (funcall (intern "RUN-SUITE" "CLINT-TESTS") (intern "CLINT" "CLINT-TESTS"))))
+  (print (symbol-call :clint-tests :run-suite (intern* :clint :clint-tests))))
